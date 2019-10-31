@@ -4,6 +4,10 @@ cmake_minimum_required (VERSION 3.11)
 
 project (tbplus)
 
+add_subdirectory("flatbuffers"
+                 ${CMAKE_CURRENT_BINARY_DIR}/flatbuffers-build
+                 EXCLUDE_FROM_ALL)
+
 add_executable(tbplus
   tbplus.cxx
   bplus_leaf.cxx

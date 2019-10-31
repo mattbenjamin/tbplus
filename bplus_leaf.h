@@ -17,12 +17,58 @@
 #include <stdint.h>
 #include <string>
 #include <array>
+#include <vector>
+#include <mutex>
 #include <functional>
 #include <boost/variant.hpp>
 #include <boost/blank.hpp>
 
 namespace rgw { namespace bplus {
 
+    using std::vector;
+    using std::string;
+
+    static constexpr uint32_t fanout = 100;
+
+    class Pointer
+    {
+      string key;
+      string oid; // path to on-disk rep
+    };
+    
+    class Node
+    {
+      enum class NodeType : uint8_t
+      {
+	Root,
+	Leaf,
+	Internal
+      };
+
+      uint32_t level; // per convention, is a leaf
+
+      vector<string> prefixes;
+      vector<string> keys;
+      vector<string*> keys_view;
+
+    public:
+      int insert(const std::string& key, const std::string& value) {
+
+	return 0;
+      }
+    };
+
+    class NonLeaf : public Node
+    {
+    public:
+    };
+
+    class Leaf : public Node
+    {
+      vector<string> values;
+    public:
+    };
+    
 
 }} /* namespace */
 

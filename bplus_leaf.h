@@ -80,7 +80,7 @@ namespace rgw { namespace bplus {
 	}
 	return 0;
       }
-    };
+    }; /* Node */
 
     class NonLeaf : public Node
     {

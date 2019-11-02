@@ -28,8 +28,6 @@ namespace rgw { namespace bplus {
     using std::vector;
     using std::string;
 
-    static constexpr uint32_t fanout = 100;
-
     class Pointer
     {
       string key;
@@ -38,6 +36,9 @@ namespace rgw { namespace bplus {
     
     class Node
     {
+    public:
+      static constexpr uint32_t fanout = 100;
+
       enum class NodeType : uint8_t
       {
 	Root,
@@ -45,15 +46,38 @@ namespace rgw { namespace bplus {
 	Internal
       };
 
-      uint32_t level; // per convention, is a leaf
+      uint32_t level; // per convention, 0 is a leaf
+
+    private:
+      using lock_guard = std::lock_guard<std::mutex>;
+      using unique_lock = std::unique_lock<std::mutex>;
+
+      std::mutex mtx;
+
 
       vector<string> prefixes;
       vector<string> keys;
+      vector<string> values;
       vector<string*> keys_view;
 
-    public:
-      int insert(const std::string& key, const std::string& value) {
+      using keys_iterator = decltype(keys)::iterator;
 
+    public:
+      const size_t size() const { return keys.size(); }
+
+      int insert(const std::string& key, const std::string& value) {
+	lock_guard guard(mtx);
+	if (keys.size() == fanout) {
+	  // oh, noes!  need split
+	}
+	keys_iterator it = std::lower_bound(keys.begin(), keys.end(), key);
+	if (it != keys.end() &&
+	    *it != key) {
+	  keys.insert(it, key);
+	  // TODO:  store value
+	} else {
+	  return EEXIST;
+	}
 	return 0;
       }
     };

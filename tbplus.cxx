@@ -13,6 +13,8 @@
  *
  */
 
+#include "gtest/gtest.h"
+
 #include <errno.h>
 #include <iostream>
 #include <string>
@@ -28,7 +30,24 @@ namespace {
   using std::get;
   using std::string;
 
-  
+  /* test classes */
+  class Node_Min1 : public ::testing::Test {
+  protected:
+  public:
+    Node_Min1() {
+    }
+  };
+} /* namespace */
+
+TEST_F(Node_Min1, t1) {
+  Node n{};
+  string pref{"f_"};
+  for (int ix = 0; ix < Node::fanout; ++ix) {
+    string k = pref + std::to_string(ix);
+    string v = "val for " + k;
+    n.insert(k, v);
+  }
+  ASSERT_EQ(n.size(), Node::fanout);
 }
 
 int main(int argc, char **argv)

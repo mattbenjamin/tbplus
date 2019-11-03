@@ -95,7 +95,6 @@ namespace rgw { namespace bplus {
 	const std::optional<std::string>& prefix,
 	std::function<int(const std::string*, const std::string*)> cb,
 	std::optional<uint32_t> limit) {
-	// TODO: seek to prefix
 	uint32_t count{0};
 	uint32_t lim  =
 	  limit ? *limit : std::numeric_limits<uint32_t>::max() ;
@@ -104,17 +103,15 @@ namespace rgw { namespace bplus {
 	  : keys.begin();
 	for (; it != keys.end() && count < lim; ++it) {
 	  auto k = *it;
-	  if (prefix) {
-	    if (ba::starts_with(k, *prefix)) {
-	      auto ret = cb(&k, &k);
-	      ++count;
-	    } else
-	      return 0;
-	  } else {
-	    auto ret = cb(&k, &k);
-	    ++count;
+	  // stop iteration iff prefix search and prefix not found
+	  if (prefix && !ba::starts_with(k, *prefix)) {
+	    goto out;
 	  }
+	  auto ret = cb(&k, &k);
+	  ++count;
 	}
+      out:
+	return count;
       } /* list */
     }; /* Node */
 

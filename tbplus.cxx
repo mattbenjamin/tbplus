@@ -61,7 +61,7 @@ TEST_F(Node_Min1, list1) {
       ++count;
       return 0;
     };
-    n.list({}, print_node);
+    n.list({}, print_node, {});
     ASSERT_EQ(count, Node::fanout);
 }
 
@@ -75,7 +75,7 @@ TEST_F(Node_Min1, list2) {
       ++count;
       return 0;
     };
-    n.list("f_9", print_node);
+    n.list("f_9", print_node, {});
     ASSERT_EQ(count, 10);
 }
 

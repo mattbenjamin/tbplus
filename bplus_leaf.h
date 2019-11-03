@@ -20,6 +20,7 @@
 #include <array>
 #include <vector>
 #include <mutex>
+#include <limits>
 #include <functional>
 #include <boost/variant.hpp>
 #include <boost/blank.hpp>
@@ -88,11 +89,16 @@ namespace rgw { namespace bplus {
 
       int list(
 	const std::optional<std::string>& prefix,
-	std::function<int(const std::string*, const std::string*)> cb) {
+	std::function<int(const std::string*, const std::string*)> cb,
+	std::optional<uint32_t> limit) {
 	// TODO: seek to prefix
+	uint32_t count{0};
+	uint32_t lim  =
+	  limit ? *limit : std::numeric_limits<uint32_t>::max() ;
 	keys_iterator it = keys.begin();
-	for (; it != keys.end(); ++it) {
+	for (; it != keys.end() && count < lim; ++it) {
 	  auto ret = cb(&*it, &*it);
+	  ++count;
 	}
       } /* list */
     }; /* Node */

@@ -14,6 +14,7 @@
 #ifndef BPLUS_LEAF_H
 #define BPLUS_LEAF_H
 
+#include "compat.h"
 #include <stdint.h>
 #include <string>
 #include <array>
@@ -71,15 +72,29 @@ namespace rgw { namespace bplus {
 	  // oh, noes!  need split
 	}
 	keys_iterator it = std::lower_bound(keys.begin(), keys.end(), key);
-	if (it != keys.end() &&
-	    *it != key) {
-	  keys.insert(it, key);
-	  // TODO:  store value
-	} else {
-	  return EEXIST;
+	if (it == keys.end()) {
+	  std::cout << "key not found" << std::endl;
 	}
+	if (it != keys.end()) {
+	  if(unlikely(*it == key)) {
+	    return EEXIST;
+	  }
+	}
+	keys.insert(it, key);
+	// TODO:  store value
+	// TODO:  lift indirect
 	return 0;
-      }
+      } /* insert */
+
+      int list(
+	const std::optional<std::string>& prefix,
+	std::function<int(const std::string*, const std::string*)> cb) {
+	// TODO: seek to prefix
+	keys_iterator it = keys.begin();
+	for (; it != keys.end(); ++it) {
+	  auto ret = cb(&*it, &*it);
+	}
+      } /* list */
     }; /* Node */
 
     class NonLeaf : public Node

@@ -19,6 +19,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <optional>
 
 #include "bplus_leaf.h"
 
@@ -37,10 +38,10 @@ namespace {
     Node_Min1() {
     }
   };
+  Node n{};
 } /* namespace */
 
-TEST_F(Node_Min1, t1) {
-  Node n{};
+TEST_F(Node_Min1, fill1) {
   string pref{"f_"};
   for (int ix = 0; ix < Node::fanout; ++ix) {
     string k = pref + std::to_string(ix);
@@ -50,8 +51,18 @@ TEST_F(Node_Min1, t1) {
   ASSERT_EQ(n.size(), Node::fanout);
 }
 
+TEST_F(Node_Min1, list1) {
+  ASSERT_EQ(n.size(), Node::fanout);
+  auto print_node =
+    [] (const std::string *k, const std::string *v) -> int {
+      std::cout << "key: " << *k << "value: " << *v << std::endl;
+      return 0;
+    };
+    n.list({}, print_node);
+}
+
 int main(int argc, char **argv)
 {
-
-  return 0;
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }

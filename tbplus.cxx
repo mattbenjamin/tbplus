@@ -52,13 +52,31 @@ TEST_F(Node_Min1, fill1) {
 }
 
 TEST_F(Node_Min1, list1) {
+  /* list all */
   ASSERT_EQ(n.size(), Node::fanout);
+  int count{0};
   auto print_node =
-    [] (const std::string *k, const std::string *v) -> int {
+    [&count] (const std::string *k, const std::string *v) -> int {
       std::cout << "key: " << *k << "value: " << *v << std::endl;
+      ++count;
       return 0;
     };
     n.list({}, print_node);
+    ASSERT_EQ(count, Node::fanout);
+}
+
+TEST_F(Node_Min1, list2) {
+  /* list in a prefix */
+  ASSERT_EQ(n.size(), Node::fanout);
+  int count{0};
+  auto print_node =
+    [&count] (const std::string *k, const std::string *v) -> int {
+      std::cout << "key: " << *k << "value: " << *v << std::endl;
+      ++count;
+      return 0;
+    };
+    n.list({}, print_node);
+    ASSERT_EQ(count, Node::fanout);
 }
 
 int main(int argc, char **argv)

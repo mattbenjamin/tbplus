@@ -75,8 +75,8 @@ TEST_F(Node_Min1, list2) {
       ++count;
       return 0;
     };
-    n.list({}, print_node);
-    ASSERT_EQ(count, Node::fanout);
+    n.list("f_9", print_node);
+    ASSERT_EQ(count, 10);
 }
 
 int main(int argc, char **argv)

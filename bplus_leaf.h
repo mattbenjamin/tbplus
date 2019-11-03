@@ -24,9 +24,12 @@
 #include <functional>
 #include <boost/variant.hpp>
 #include <boost/blank.hpp>
+#include <boost/algorithm/string.hpp>
 
 namespace rgw { namespace bplus {
 
+    namespace ba  = boost::algorithm;
+    
     using std::vector;
     using std::string;
 
@@ -63,7 +66,7 @@ namespace rgw { namespace bplus {
       vector<string*> keys_view;
 
       using keys_iterator = decltype(keys)::iterator;
-
+      
     public:
       const size_t size() const { return keys.size(); }
 
@@ -71,6 +74,7 @@ namespace rgw { namespace bplus {
 	lock_guard guard(mtx);
 	if (keys.size() == fanout) {
 	  // oh, noes!  need split
+	  return E2BIG;
 	}
 	keys_iterator it = std::lower_bound(keys.begin(), keys.end(), key);
 	if (it == keys.end()) {
@@ -95,10 +99,21 @@ namespace rgw { namespace bplus {
 	uint32_t count{0};
 	uint32_t lim  =
 	  limit ? *limit : std::numeric_limits<uint32_t>::max() ;
-	keys_iterator it = keys.begin();
+	keys_iterator it = (prefix)
+	  ? std::lower_bound(keys.begin(), keys.end(), *prefix)
+	  : keys.begin();
 	for (; it != keys.end() && count < lim; ++it) {
-	  auto ret = cb(&*it, &*it);
-	  ++count;
+	  auto k = *it;
+	  if (prefix) {
+	    if (ba::starts_with(k, *prefix)) {
+	      auto ret = cb(&k, &k);
+	      ++count;
+	    } else
+	      return 0;
+	  } else {
+	    auto ret = cb(&k, &k);
+	    ++count;
+	  }
 	}
       } /* list */
     }; /* Node */

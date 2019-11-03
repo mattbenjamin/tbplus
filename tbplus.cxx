@@ -76,7 +76,7 @@ TEST_F(Node_Min1, list2) {
       return 0;
     };
     n.list("f_9", print_node, {});
-    ASSERT_EQ(count, 10);
+    ASSERT_EQ(count, 11);
 }
 
 int main(int argc, char **argv)

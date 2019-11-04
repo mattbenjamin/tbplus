@@ -34,6 +34,7 @@ namespace {
   /* test classes */
   class Node_Min1 : public ::testing::Test {
   protected:
+    string pref{"f_"};
   public:
     Node_Min1() {
     }
@@ -42,13 +43,20 @@ namespace {
 } /* namespace */
 
 TEST_F(Node_Min1, fill1) {
-  string pref{"f_"};
   for (int ix = 0; ix < Node::fanout; ++ix) {
     string k = pref + std::to_string(ix);
     string v = "val for " + k;
-    n.insert(k, v);
+    auto ret = n.insert(k, v);
+    ASSERT_EQ(ret, 0);
+    /* forbids duplicates */
+    if (ix == 5) {
+      ret = n.insert(k, v);
+      ASSERT_EQ(ret, EEXIST);
+    }
   }
   ASSERT_EQ(n.size(), Node::fanout);
+  auto ret = n.insert("foo", "bar");
+  ASSERT_EQ(ret, E2BIG);
 }
 
 TEST_F(Node_Min1, list1) {
@@ -77,6 +85,24 @@ TEST_F(Node_Min1, list2) {
     };
     n.list("f_9", print_node, {});
     ASSERT_EQ(count, 11);
+}
+
+TEST_F(Node_Min1, list3) {
+  /* list in a prefix */
+  ASSERT_EQ(n.size(), 11);
+  for (auto ix : {92, 93, 94}) {
+    string k = pref + std::to_string(ix);
+    n.remove(k);
+  }
+  int count{0};
+  auto print_node =
+    [&count] (const std::string *k, const std::string *v) -> int {
+      std::cout << "key: " << *k << "value: " << *v << std::endl;
+      ++count;
+      return 0;
+    };
+    n.list("f_9", print_node, {});
+    ASSERT_EQ(count, 8);
 }
 
 int main(int argc, char **argv)

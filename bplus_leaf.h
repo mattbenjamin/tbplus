@@ -91,6 +91,16 @@ namespace rgw { namespace bplus {
 	return 0;
       } /* insert */
 
+      int remove(const std::string& key) {
+	lock_guard guard(mtx);
+	// TODO:  lift indirect
+	keys_iterator it = std::lower_bound(keys.begin(), keys.end(), key);
+	if (it != keys.end() &&
+	    *it == key) {
+	  keys.erase(it);
+	}
+      } /* remove */
+
       int list(
 	const std::optional<std::string>& prefix,
 	std::function<int(const std::string*, const std::string*)> cb,

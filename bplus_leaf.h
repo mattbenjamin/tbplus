@@ -44,6 +44,9 @@ namespace rgw { namespace bplus {
     public:
       static constexpr uint32_t fanout = 100;
 
+      static constexpr uint32_t FLAG_NONE =     0x0000;
+      static constexpr uint32_t FLAG_REQUIRE_PREFIX =     0x0001;
+
       enum class NodeType : uint8_t
       {
 	Root,
@@ -104,7 +107,8 @@ namespace rgw { namespace bplus {
       int list(
 	const std::optional<std::string>& prefix,
 	std::function<int(const std::string*, const std::string*)> cb,
-	std::optional<uint32_t> limit) {
+	std::optional<uint32_t> limit,
+	uint32_t flags = 0) {
 	uint32_t count{0};
 	uint32_t lim  =
 	  limit ? *limit : std::numeric_limits<uint32_t>::max() ;
@@ -115,7 +119,8 @@ namespace rgw { namespace bplus {
 	for (; it != keys.end() && count < lim; ++it) {
 	  auto k = *it;
 	  // stop iteration iff prefix search and prefix not found
-	  if (prefix && !ba::starts_with(k, *prefix)) {
+	  if (prefix && (flags & FLAG_REQUIRE_PREFIX) &&
+	      !ba::starts_with(k, *prefix)) {
 	    goto out;
 	  }
 	  auto ret = cb(&k, &k);

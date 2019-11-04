@@ -108,6 +108,7 @@ namespace rgw { namespace bplus {
 	uint32_t count{0};
 	uint32_t lim  =
 	  limit ? *limit : std::numeric_limits<uint32_t>::max() ;
+	lock_guard guard(mtx);
 	keys_iterator it = (prefix)
 	  ? std::lower_bound(keys.begin(), keys.end(), *prefix)
 	  : keys.begin();

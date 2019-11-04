@@ -87,13 +87,18 @@ TEST_F(Node_Min1, list2) {
     ASSERT_EQ(count, 11);
 }
 
-TEST_F(Node_Min1, list3) {
-  /* list in a prefix */
-  ASSERT_EQ(n.size(), 11);
-  for (auto ix : {92, 93, 94}) {
+TEST_F(Node_Min1, remove1) {
+  ASSERT_EQ(n.size(), Node::fanout);
+  for (auto ix : {92, 94, 97}) {
     string k = pref + std::to_string(ix);
     n.remove(k);
   }
+  ASSERT_EQ(n.size(), Node::fanout - 3);
+}
+
+TEST_F(Node_Min1, list3) {
+  /* list in a prefix */
+  ASSERT_EQ(n.size(), Node::fanout - 3);
   int count{0};
   auto print_node =
     [&count] (const std::string *k, const std::string *v) -> int {

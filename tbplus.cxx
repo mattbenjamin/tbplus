@@ -20,6 +20,7 @@
 #include <string>
 #include <vector>
 #include <optional>
+#include <boost/program_options.hpp>
 
 #include "bplus_leaf.h"
 
@@ -120,6 +121,38 @@ TEST_F(Node_Min1, list3) {
 
 int main(int argc, char **argv)
 {
-  ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
+  int code = 0;
+  namespace po = boost::program_options;
+
+  po::options_description opts("program options");
+  po::variables_map vm;
+
+  try {
+
+    opts.add_options()
+      ("verbose", "be verbose about things")
+      ;
+
+    po::variables_map::iterator vm_iter;
+    po::store(po::parse_command_line(argc, argv, opts), vm);
+
+    if (vm.count("verbose")) {
+      verbose = true;
+    }
+
+    po::notify(vm);
+
+    ::testing::InitGoogleTest(&argc, argv);
+    code = RUN_ALL_TESTS();
+  }
+
+  catch(po::error& e) {
+    std::cout << "Error parsing opts " << e.what() << std::endl;
+  }
+
+  catch(...) {
+    std::cout << "Unhandled exception in main()" << std::endl;
+  }
+
+  return code;
 }

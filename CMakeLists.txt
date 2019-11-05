@@ -21,4 +21,5 @@ add_executable(tbplus
 set_property(TARGET tbplus PROPERTY CXX_STANDARD 17)
 target_link_libraries(tbplus
   ${GTEST_LIBRARIES}
+  boost_program_options
   )

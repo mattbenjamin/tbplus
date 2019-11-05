@@ -140,9 +140,6 @@ namespace rgw { namespace bplus {
 	}
 	keysview_iterator kv_it = std::lower_bound(
 	  keys_view.begin(), keys_view.end(), key, keysviewLT);
-	if (kv_it == keys_view.end()) {
-	  std::cout << "key not found" << std::endl;
-	}
 	if (kv_it != keys_view.end()) {
 	  if(unlikely(kv_it->key(this) == key)) {
 	    return EEXIST;

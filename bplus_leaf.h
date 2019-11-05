@@ -27,6 +27,7 @@
 #include <boost/variant.hpp>
 #include <boost/blank.hpp>
 #include <boost/algorithm/string.hpp>
+#include <flatbuffers/flexbuffers.h>
 
 namespace rgw { namespace bplus {
 
@@ -44,6 +45,7 @@ namespace rgw { namespace bplus {
     class Node
     {
     public:
+      static constexpr uint32_t ondisk_version = 1;
       static constexpr uint32_t fanout = 100;
 
       static constexpr uint32_t FLAG_NONE =     0x0000;
@@ -197,6 +199,39 @@ namespace rgw { namespace bplus {
       out:
 	return count;
       } /* list */
+
+      std::vector<uint8_t> serialize() {
+	lock_guard guard(mtx);
+	flexbuffers::Builder fbb;
+	/* TODO: recursion -> iteration */
+	// header
+	fbb.Map(
+	  [&fbb]() {
+	    fbb.Map(
+	      "rgw-bplus-leaf",
+	      [&fbb]() {
+		fbb.Vector(
+		  "header",
+		  [&fbb]() {
+		    fbb.UInt(ondisk_version);
+		    //fbb.String("more header fields");
+		  });
+		fbb.Vector(
+		  "kv-data",
+		  [&fbb]() {
+		    fbb.String("some kv data");
+		  });
+		/* XXXX actually this probably is another segment */
+		fbb.Vector(
+		  "update-log",
+		  [&fbb]() {
+		    fbb.String("update log records");
+		  });
+	      }); // Vector
+	  }); // Map
+	fbb.Finish();
+	return fbb.GetBuffer();
+      }
     }; /* Node */
 
     class NonLeaf : public Node

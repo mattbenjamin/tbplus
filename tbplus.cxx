@@ -119,6 +119,11 @@ TEST_F(Node_Min1, list3) {
     ASSERT_EQ(count, 8);
 }
 
+TEST_F(Node_Min1, serialize1) {
+  auto bytes = n.serialize();
+  ASSERT_GT(bytes.size(), 0);
+}
+
 int main(int argc, char **argv)
 {
   int code = 0;

@@ -31,6 +31,8 @@ namespace {
   using std::get;
   using std::string;
 
+  bool verbose = false;
+
   /* test classes */
   class Node_Min1 : public ::testing::Test {
   protected:
@@ -102,7 +104,9 @@ TEST_F(Node_Min1, list3) {
   int count{0};
   auto print_node =
     [&count] (const std::string *k, const std::string *v) -> int {
-      std::cout << "key: " << *k << " value: " << *v << std::endl;
+      if (verbose) {
+	std::cout << "key: " << *k << " value: " << *v << std::endl;
+      }
       ++count;
       return 0;
     };

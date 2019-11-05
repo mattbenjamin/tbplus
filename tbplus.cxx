@@ -65,7 +65,7 @@ TEST_F(Node_Min1, list1) {
   int count{0};
   auto print_node =
     [&count] (const std::string *k, const std::string *v) -> int {
-      std::cout << "key: " << *k << "value: " << *v << std::endl;
+      std::cout << "key: " << *k << " value: " << *v << std::endl;
       ++count;
       return 0;
     };
@@ -79,7 +79,7 @@ TEST_F(Node_Min1, list2) {
   int count{0};
   auto print_node =
     [&count] (const std::string *k, const std::string *v) -> int {
-      std::cout << "key: " << *k << "value: " << *v << std::endl;
+      std::cout << "key: " << *k << " value: " << *v << std::endl;
       ++count;
       return 0;
     };
@@ -102,7 +102,7 @@ TEST_F(Node_Min1, list3) {
   int count{0};
   auto print_node =
     [&count] (const std::string *k, const std::string *v) -> int {
-      std::cout << "key: " << *k << "value: " << *v << std::endl;
+      std::cout << "key: " << *k << " value: " << *v << std::endl;
       ++count;
       return 0;
     };

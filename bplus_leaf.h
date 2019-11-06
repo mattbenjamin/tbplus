@@ -94,14 +94,14 @@ namespace rgw { namespace bplus {
       public:
 	KeyEntry(size_t _rep_off)
 	  : rep_off(_rep_off) {}
+	inline KeyValueEntry& elt(const Node* node) const {
+	  return const_cast<KeyValueEntry&>(node->local_rep[rep_off]);
+	}
 	inline const std::string& key(const Node* node) const {
-	  return node->local_rep[rep_off].key;
+	  return elt(node).key;
 	}
 	inline const std::string& val(const Node* node) const {
-	  return node->local_rep[rep_off].val;
-	}
-	inline KeyValueEntry& elt(Node* node) {
-	  return node->local_rep[rep_off];
+	  return elt(node).val;
 	}
       }; /* KeysViewEntry */
 

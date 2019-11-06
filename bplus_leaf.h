@@ -49,7 +49,8 @@ namespace rgw { namespace bplus {
       static constexpr uint32_t fanout = 100;
 
       static constexpr uint32_t FLAG_NONE =     0x0000;
-      static constexpr uint32_t FLAG_REQUIRE_PREFIX =     0x0001;
+      static constexpr uint32_t FLAG_REQUIRE_PREFIX = 0x0001;
+      static constexpr uint32_t FLAG_LOCKED = 0x0002;
 
       enum class NodeType : uint8_t
       {
@@ -181,7 +182,11 @@ namespace rgw { namespace bplus {
 	uint32_t count{0};
 	uint32_t lim  =
 	  limit ? *limit : std::numeric_limits<uint32_t>::max() ;
-	lock_guard guard(mtx);
+	unique_lock uniq(mtx, std::defer_lock);
+	if (likely(! (flags & FLAG_LOCKED))) {
+	  uniq.lock();
+	}
+
 	keysview_iterator it = (prefix)
 	  ? std::lower_bound(keys_view.begin(), keys_view.end(), *prefix,
 			    keysviewLT)
@@ -204,22 +209,29 @@ namespace rgw { namespace bplus {
 	lock_guard guard(mtx);
 	flexbuffers::Builder fbb;
 	/* TODO: recursion -> iteration */
-	// header
+
+	auto fkv =
+	  [&fbb] (const std::string *k, const std::string *v) -> int {
+	      fbb.String(*k);
+	      fbb.String(*v);
+	      return 0;
+	  };
+
 	fbb.Map(
-	  [&fbb]() {
+	  [&node = *this, &fbb, fkv]() {
 	    fbb.Map(
 	      "rgw-bplus-leaf",
-	      [&fbb]() {
+	      [&fbb, &node, fkv]() {
 		fbb.Vector(
 		  "header",
-		  [&fbb]() {
+		  [&fbb, &node, fkv]() {
 		    fbb.UInt(ondisk_version);
 		    //fbb.String("more header fields");
 		  });
 		fbb.Vector(
 		  "kv-data",
-		  [&fbb]() {
-		    fbb.String("some kv data");
+		  [&fbb, &node, fkv]() {
+		    node.list({}, fkv, {}, Node::FLAG_LOCKED);
 		  });
 		/* XXXX actually this probably is another segment */
 		fbb.Vector(

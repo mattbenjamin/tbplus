@@ -133,6 +133,12 @@ namespace rgw { namespace bplus {
       Node()
 	: keysviewLT(this)
 	{}
+
+      Node(std::vector<uint8_t> flatv)
+	: keysviewLT(this) {
+	// TODO: unserialize, sharing memory
+      }
+
       const size_t size() const { return keys_view.size(); }
 
       int insert(const std::string& key, const std::string& value) {

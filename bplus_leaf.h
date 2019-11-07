@@ -191,10 +191,10 @@ namespace rgw { namespace bplus {
 	   * to execute the swap step */
 	  keysview_iterator back_it = std::lower_bound(
 	    keys_view.begin(), keys_view.end(), elt2.key, keysviewLT);
-	  std::swap(elt, local_rep.back());
+	  std::swap(elt, elt2);
 	  local_rep.pop_back();
-	  back_it->rep_off = local_rep.size()-1;
-	  /* now erase it from the view */
+	  back_it->rep_off = kv_it->rep_off;
+	  /* now erase kv_it from the sorted view */
 	  keys_view.erase(kv_it);
 	}
 	return 0;

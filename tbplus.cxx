@@ -120,9 +120,13 @@ TEST_F(Node_Min1, list3) {
       return 0;
     };
     n.list({}, print_node, {});
+    ASSERT_EQ(count, Node::fanout - 3);
+
+    count = 0;
+    n.list("f_9", print_node, {});
     ASSERT_EQ(count, 8);
 }
-#if 0
+
 TEST_F(Node_Min1, serialize1) {
   min1_serialized_bytes = n.serialize();
   ASSERT_GT(min1_serialized_bytes.size(), 0);
@@ -158,7 +162,7 @@ TEST_F(Node_Min1, list4) {
   n.list({}, print_node, {});
   ASSERT_EQ(count, Node::fanout - 3);
 }
-#endif
+
 int main(int argc, char **argv)
 {
   int code = 0;

@@ -43,6 +43,7 @@ namespace {
     }
   };
   Node n{};
+  std::vector<uint8_t> min1_serialized_bytes;
 } /* namespace */
 
 TEST_F(Node_Min1, fill1) {
@@ -120,8 +121,39 @@ TEST_F(Node_Min1, list3) {
 }
 
 TEST_F(Node_Min1, serialize1) {
-  auto bytes = n.serialize();
-  ASSERT_GT(bytes.size(), 0);
+  min1_serialized_bytes = n.serialize();
+  ASSERT_GT(min1_serialized_bytes.size(), 0);
+}
+
+TEST_F(Node_Min1, unserialize1) {
+  Node n2(min1_serialized_bytes);
+  int count{0};
+  auto print_node =
+    [&count] (const std::string *k, const std::string *v) -> int {
+      if (verbose) {
+	std::cout << "key: " << *k << " value: " << *v << std::endl;
+      }
+      ++count;
+      return 0;
+    };
+  n2.list({}, print_node, {});
+  ASSERT_EQ(count, Node::fanout-3);
+}
+
+TEST_F(Node_Min1, list4) {
+  /* list in a prefix */
+  ASSERT_EQ(n.size(), Node::fanout - 3);
+  int count{0};
+  auto print_node =
+    [&count] (const std::string *k, const std::string *v) -> int {
+      if (verbose) {
+	std::cout << "key: " << *k << " value: " << *v << std::endl;
+      }
+      ++count;
+      return 0;
+    };
+    n.list("f_9", print_node, {});
+    ASSERT_EQ(count, 8);
 }
 
 int main(int argc, char **argv)

@@ -65,7 +65,7 @@ namespace rgw { namespace bplus {
       using lock_guard = std::lock_guard<std::mutex>;
       using unique_lock = std::unique_lock<std::mutex>;
 
-      std::mutex mtx;
+      mutable std::mutex mtx;
 
       NodeType type;
 
@@ -135,11 +135,23 @@ namespace rgw { namespace bplus {
 	{}
 
       Node(std::vector<uint8_t> flatv)
-	: keysviewLT(this) {
-	// TODO: unserialize, sharing memory
+       : keysviewLT(this) {
+	unserialize(flatv);
       }
 
-      const size_t size() const { return keys_view.size(); }
+      size_t size() const {
+	lock_guard guard(mtx);
+	return keys_view.size();
+      } /* size */
+
+      void clear(uint32_t flags = FLAG_NONE) {
+	unique_lock uniq(mtx, std::defer_lock);
+	if (likely(! (flags & FLAG_LOCKED))) {
+	  uniq.lock();
+	}
+	keys_view.clear();
+	local_rep.clear();
+      } /* clear */
 
       int insert(const std::string& key, const std::string& value) {
 	lock_guard guard(mtx);
@@ -184,7 +196,7 @@ namespace rgw { namespace bplus {
 	const std::optional<std::string>& prefix,
 	std::function<int(const std::string*, const std::string*)> cb,
 	std::optional<uint32_t> limit,
-	uint32_t flags = 0) {
+	uint32_t flags = FLAG_NONE) {
 	uint32_t count{0};
 	uint32_t lim  =
 	  limit ? *limit : std::numeric_limits<uint32_t>::max() ;
@@ -249,7 +261,33 @@ namespace rgw { namespace bplus {
 	  }); // Map
 	fbb.Finish();
 	return fbb.GetBuffer();
-      }
+      } /* serialize */
+
+      int unserialize(std::vector<uint8_t> flatv) {
+	/* destructively fill from serialized data, return size of
+	 * node after fill */
+	lock_guard guard(mtx);
+	clear(Node::FLAG_LOCKED);
+	auto map = flexbuffers::GetRoot(flatv).AsMap();
+	auto vec = map["rgw-bplus-leaf"].AsVector();
+	// header
+	auto header = vec[0].AsVector();
+	auto kv_data = vec[1].AsVector();
+	// kv-data -- fill vectors, then sort keys_view
+	for (int kv_ix = 0; kv_ix < kv_data.size(); kv_ix += 2) {
+	  // TODO:  verify sharing rep (i.e., flatv)
+	  auto key = kv_data[kv_ix].AsString().c_str();
+	  auto val = kv_data[kv_ix+1].AsString().c_str();
+	  local_rep.emplace_back(key, val);
+	  keys_view.emplace_back(local_rep.size()-1);
+	}
+	// except keys_view is already sorted!
+	//std::sort(keys_view.begin(), keys_view.end(), keysviewLT);
+	// update log
+	auto update_log = vec[2]; // XXX not used yet
+	return kv_data.size();
+      } /* unserialize */
+
     }; /* Node */
 
     class NonLeaf : public Node

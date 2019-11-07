@@ -184,8 +184,16 @@ namespace rgw { namespace bplus {
 	   * deleted with the last element in the vector, then erase
 	   * the element in last position */
 	  auto& elt = kv_it->elt(this);
+	  auto& elt2 = local_rep.back();
+	  /* sadly, we don't know (though could save at the cost
+	   * of significant space) the position of the keys_view
+	   * record that points to local_rep.back(), and need it
+	   * to execute the swap step */
+	  keysview_iterator back_it = std::lower_bound(
+	    keys_view.begin(), keys_view.end(), elt2.key, keysviewLT);
 	  std::swap(elt, local_rep.back());
 	  local_rep.pop_back();
+	  back_it->rep_off = local_rep.size()-1;
 	  /* now erase it from the view */
 	  keys_view.erase(kv_it);
 	}

@@ -99,6 +99,9 @@ TEST_F(Node_Min1, remove1) {
   ASSERT_EQ(n.size(), Node::fanout);
   for (auto ix : {92, 94, 97}) {
     string k = pref + std::to_string(ix);
+    if (verbose) {
+      std::cout << "removing: " << k << std::endl;
+    }
     n.remove(k);
   }
   ASSERT_EQ(n.size(), Node::fanout - 3);
@@ -116,10 +119,10 @@ TEST_F(Node_Min1, list3) {
       ++count;
       return 0;
     };
-    n.list("f_9", print_node, {});
+    n.list({}, print_node, {});
     ASSERT_EQ(count, 8);
 }
-
+#if 0
 TEST_F(Node_Min1, serialize1) {
   min1_serialized_bytes = n.serialize();
   ASSERT_GT(min1_serialized_bytes.size(), 0);
@@ -152,10 +155,10 @@ TEST_F(Node_Min1, list4) {
       ++count;
       return 0;
     };
-    n.list("f_9", print_node, {});
-    ASSERT_EQ(count, 8);
+  n.list({}, print_node, {});
+  ASSERT_EQ(count, Node::fanout - 3);
 }
-
+#endif
 int main(int argc, char **argv)
 {
   int code = 0;

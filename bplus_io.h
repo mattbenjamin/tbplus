@@ -23,9 +23,8 @@ public:
     {}
 
   /* api */
-  
-  
-}; /* Tree */
+
+}; /* IO */
 
 }} /* namespace */
 

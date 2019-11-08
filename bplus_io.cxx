@@ -11,31 +11,13 @@
  *
  */
 
-#ifndef BPLUS_IO_H
-#define BPLUS_IO_H
-
-#include <string>
-#include <map>
-#include "bplus_leaf.h" // uses bplus::Node in the interface
+#include "bplus_io.h"
 
 namespace rgw { namespace bplus {
-
-    class IO
+		
+    std::string IO::random_bytes(int cnt)
     {
-    private:
-      
-    public:
-      IO(void)
-	{}
+      return "hiho";
+    } /* random_bytes */
 
-      std::string random_bytes(int cnt);
-
-      /* api */
-
-    }; /* IO */
-    
-    extern IO io;
-    
 }} /* namespace */
-
-#endif /* BPLUS_IO_H */

@@ -22,7 +22,7 @@
 #include <optional>
 #include <boost/program_options.hpp>
 
-#include "bplus_leaf.h"
+#include "bplus_tree.h"
 
 #define dout_subsys ceph_subsys_rgw
 

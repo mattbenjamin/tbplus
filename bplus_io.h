@@ -16,15 +16,22 @@
 
 namespace rgw { namespace bplus {
 
-class IO
-{
-public:
-  IO(void)
-    {}
+    class Util
+    {
+    private:
+    public:
+    };
+    
+    
+    class IO
+    {
+    public:
+      IO(void)
+	{}
 
-  /* api */
+      /* api */
 
-}; /* IO */
+    }; /* IO */
 
 }} /* namespace */
 

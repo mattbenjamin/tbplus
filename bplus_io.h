@@ -11,20 +11,15 @@
  *
  */
 
-#ifndef BPLUS_TREE_H
-#define BPLUS_TREE_H
-
-#include "bplus_leaf.h"
-#include "bplus_io.h"
+#ifndef BPLUS_IO_H
+#define BPLUS_IO_H
 
 namespace rgw { namespace bplus {
 
-class Tree
+class IO
 {
-  std::string name;
 public:
-  Tree(std::string _name)
-    : name(_name)
+  IO(void)
     {}
 
   /* api */
@@ -34,4 +29,4 @@ public:
 
 }} /* namespace */
 
-#endif /* BPLUS_TREE_H */
+#endif /* BPLUS_IO_H */

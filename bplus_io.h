@@ -16,6 +16,8 @@
 
 #include <string>
 #include <map>
+#include <iostream>
+#include <random>
 #include "bplus_leaf.h" // uses bplus::Node in the interface
 
 namespace rgw { namespace bplus {
@@ -23,10 +25,9 @@ namespace rgw { namespace bplus {
     class IO
     {
     private:
-      
+      std::mt19937* mt;
     public:
-      IO(void)
-	{}
+      IO(void);
 
       std::string random_bytes(int cnt);
 

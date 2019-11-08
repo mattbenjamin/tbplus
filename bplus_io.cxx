@@ -13,11 +13,28 @@
 
 #include "bplus_io.h"
 
+#include <array>
+
 namespace rgw { namespace bplus {
-		
+
+    IO::IO()
+      : mt(nullptr)
+    {
+      /* seed sequence taken verbatim from
+       * https://www.guyrutenberg.com/2014/05/03/c-mt19937-example/
+       */
+      std::array<int, 624> seed_data;
+      std::random_device r;
+      std::generate_n(seed_data.data(), seed_data.size(), std::ref(r));
+      std::seed_seq seq(std::begin(seed_data), std::end(seed_data));
+      mt = new std::mt19937(seq);
+    }
+
     std::string IO::random_bytes(int cnt)
     {
-      return "hiho";
+      std::string s(cnt, ' ');
+      std::generate(std::begin(s), std::end(s), std::ref(*mt));
+      return std::move(s);
     } /* random_bytes */
 
 }} /* namespace */

@@ -16,22 +16,43 @@
 
 namespace rgw { namespace bplus {
 
-    std::string Tree::gen_node_name() const {
-      std::string s{name_stem};
-      s.reserve(64);
-      s += "-" + name + "-" +
-	z85::encode(io.random_bytes(16));
-      return s;
-    }
-
     Tree::Tree(std::string _name, uint32_t _fanout)
       : name(_name), fanout(_fanout)
     {
-      // build node name stem (random_bytes())
-    } /* Tree(std::string) */
+    } /* Tree(std::string, uint32_t) */
+
+    std::string Tree::root_name() const {
+      std::string s{name_stem};
+      s.reserve(64);
+      s.reserve(s.length() + name.length() + 2 + 4);
+      s += "-" + name + "-" + "root";
+      return s;
+    } /* root_name() */
+
+    std::string Tree::gen_node_name() const {
+      std::string s{name_stem};
+      s.reserve(s.length() + name.length() + 2 + 24);
+      s += "-" + name + "-" +
+	z85::encode(io.random_bytes(16));
+      return s;
+    } /* gen_node_name() */
+
+    Node* Tree::get_node_for_k(const std::string&) {
+      // find or create node
+      Node* node{nullptr};
+
+      return node;
+    } /* get_node_for_k */
 
     int Tree::insert(const std::string& key, const std::string& value)
     {
+      if (! root_node) {
+	// find and ref node
+	root_node = get_node_for_k(root_name());
+	if (! root_node) {
+	  return EIO;
+	}
+      }
       // get_root();
       // traverse to candidate leaf
       // try-insert

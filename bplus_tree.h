@@ -23,15 +23,16 @@ namespace rgw { namespace bplus {
     
     class Tree
     {
-      std::string name;
+      const std::string name;
       const uint32_t fanout;
 
       mutable std::mutex mtx;
-      std::optional<Node*> root_node;
+      mutable std::optional<Node*> root_node;
 
     public:
       Tree(std::string _name, uint32_t _fanout);
 
+      std::string root_name() const;
       std::string gen_node_name() const;
   
       /* ll api*/

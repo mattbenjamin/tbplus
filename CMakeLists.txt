@@ -15,15 +15,15 @@ add_executable(tbplus
   bplus_leaf.cxx
   bplus_io.cxx
   bplus_tree.cxx
-#  ceph_crypto.cc
-#  ${CMAKE_SOURCE_DIR}/blake2/sse/blake2b.c
-#  ${CMAKE_SOURCE_DIR}/blake2/sse/blake2bp.c
+  ${CMAKE_SOURCE_DIR}/z85/src/z85_impl.cpp
+  ${CMAKE_SOURCE_DIR}/z85/src/z85.c
   )
 
 set_property(TARGET tbplus PROPERTY CXX_STANDARD 17)
 
 target_include_directories(tbplus PUBLIC
-  ${CMAKE_SOURCE_DIR}/flatbuffers/include)
+  ${CMAKE_SOURCE_DIR}/flatbuffers/include
+  ${CMAKE_SOURCE_DIR}/z85/src)
 
 target_link_libraries(tbplus
   ${GTEST_LIBRARIES}

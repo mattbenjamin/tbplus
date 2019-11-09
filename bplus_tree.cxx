@@ -12,8 +12,17 @@
  */
 
 #include "bplus_tree.h"
+#include "z85.hpp"
 
 namespace rgw { namespace bplus {
+
+    std::string Tree::gen_node_name() const {
+      std::string s{name_stem};
+      s.reserve(64);
+      s += "-" + name + "-" +
+	z85::encode(io.random_bytes(16));
+      return s;
+    }
 
     Tree::Tree(std::string _name, uint32_t _fanout)
       : name(_name), fanout(_fanout)

@@ -19,25 +19,33 @@
 
 namespace rgw { namespace bplus {
 
-class Tree
-{
-  std::string name;
-  const uint32_t fanout;
-public:
-  Tree(std::string _name, uint32_t _fanout);
+    static constexpr std::string_view name_stem = "rgw-bplus";
+    
+    class Tree
+    {
+      std::string name;
+      const uint32_t fanout;
 
-  /* ll api*/
-  Node* get_node_for_k(const std::string& k);
+      mutable std::mutex mtx;
+      std::optional<Node*> root_node;
 
-  /* kv api */
-  int insert(const std::string& key, const std::string& value);
-  int remove(const std::string& key);
-  int list(const std::optional<std::string>& prefix,
-	  std::function<int(const std::string*, const std::string*)> cb,
-	  std::optional<uint32_t> limit,
-	  uint32_t flags = Node::FLAG_NONE);
+    public:
+      Tree(std::string _name, uint32_t _fanout);
 
-}; /* Tree */
+      std::string gen_node_name() const;
+  
+      /* ll api*/
+      Node* get_node_for_k(const std::string& k);
+
+      /* kv api */
+      int insert(const std::string& key, const std::string& value);
+      int remove(const std::string& key);
+      int list(const std::optional<std::string>& prefix,
+	      std::function<int(const std::string*, const std::string*)> cb,
+	      std::optional<uint32_t> limit,
+	      uint32_t flags = Node::FLAG_NONE);
+
+    }; /* Tree */
 
 }} /* namespace */
 

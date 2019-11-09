@@ -26,6 +26,8 @@ namespace rgw { namespace bplus {
     {
     private:
       std::mt19937* mt;
+      std::map<std::string, Node*> node_cache;
+
     public:
       IO(void);
 

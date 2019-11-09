@@ -1,3 +1,6 @@
 [submodule "flatbuffers"]
 	path = flatbuffers
 	url = https://github.com/google/flatbuffers.git
+[submodule "z85"]
+	path = z85
+	url = https://github.com/artemkin/z85.git

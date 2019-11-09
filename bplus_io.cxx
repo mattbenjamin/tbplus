@@ -37,4 +37,5 @@ namespace rgw { namespace bplus {
       return std::move(s);
     } /* random_bytes */
 
+    IO io;
 }} /* namespace */

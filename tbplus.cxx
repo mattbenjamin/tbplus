@@ -174,6 +174,15 @@ TEST_F(Node_Min1, list4) {
   ASSERT_EQ(count, Node_Min1::fanout - 3);
 }
 
+TEST_F(Tree_Min1, names) {
+  for (int ix = 0; ix < 10; ++ix) {
+    auto node_name = t1.gen_node_name();
+    if (verbose) {
+      std::cout << "rand node: " << node_name << std::endl;
+    }
+  }
+}
+
 TEST_F(Tree_Min1, fill1) {
   for (int ix = 0; ix < Tree_Min1::fanout; ++ix) {
     string k = pref + std::to_string(ix);

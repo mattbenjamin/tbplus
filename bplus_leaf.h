@@ -17,6 +17,7 @@
 #include "compat.h"
 #include <stdint.h>
 #include <string>
+#include <string_view>
 #include <array>
 #include <vector>
 #include <iterator>
@@ -35,6 +36,9 @@ namespace rgw { namespace bplus {
     
     using std::vector;
     using std::string;
+
+    using lock_guard = std::lock_guard<std::mutex>;
+    using unique_lock = std::unique_lock<std::mutex>;
 
     class Pointer
     {
@@ -62,11 +66,7 @@ namespace rgw { namespace bplus {
       uint32_t level; // per convention, 0 is a leaf
 
     private:
-      using lock_guard = std::lock_guard<std::mutex>;
-      using unique_lock = std::unique_lock<std::mutex>;
-
       mutable std::mutex mtx;
-
       NodeType type;
 
       // XXX: likely to change with key prefixing

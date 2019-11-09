@@ -46,6 +46,7 @@ namespace rgw { namespace bplus {
 
     int Tree::insert(const std::string& key, const std::string& value)
     {
+      // get_root();
       if (! root_node) {
 	// find and ref node
 	root_node = get_node_for_k(root_name());
@@ -53,7 +54,6 @@ namespace rgw { namespace bplus {
 	  return EIO;
 	}
       }
-      // get_root();
       // traverse to candidate leaf
       // try-insert
       //    !full: insert, done

@@ -14,6 +14,7 @@ add_executable(tbplus
   tbplus.cxx
   bplus_leaf.cxx
   bplus_io.cxx
+  bplus_tree.cxx
 #  ceph_crypto.cc
 #  ${CMAKE_SOURCE_DIR}/blake2/sse/blake2b.c
 #  ${CMAKE_SOURCE_DIR}/blake2/sse/blake2bp.c

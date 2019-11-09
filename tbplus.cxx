@@ -36,18 +36,29 @@ namespace {
 
   /* test classes */
   class Node_Min1 : public ::testing::Test {
-  protected:
+  public:
+    static constexpr uint32_t fanout = 100;
     string pref{"f_"};
   public:
     Node_Min1() {
     }
   };
-  Node n{};
+  Node n(Node_Min1::fanout);
   std::vector<uint8_t> min1_serialized_bytes;
+
+  class Tree_Min1 : public ::testing::Test {
+  public:
+    static constexpr uint32_t fanout = 10;
+    string pref{"f_"};
+  public:
+    Tree_Min1() {
+    }
+  };
+  Tree t1("Tree_Min1", Tree_Min1::fanout);
 } /* namespace */
 
 TEST_F(Node_Min1, fill1) {
-  for (int ix = 0; ix < Node::fanout; ++ix) {
+  for (int ix = 0; ix < Node_Min1::fanout; ++ix) {
     string k = pref + std::to_string(ix);
     string v = "val for " + k;
     auto ret = n.insert(k, v);
@@ -58,14 +69,14 @@ TEST_F(Node_Min1, fill1) {
       ASSERT_EQ(ret, EEXIST);
     }
   }
-  ASSERT_EQ(n.size(), Node::fanout);
+  ASSERT_EQ(n.size(), Node_Min1::fanout);
   auto ret = n.insert("foo", "bar");
   ASSERT_EQ(ret, E2BIG);
 }
 
 TEST_F(Node_Min1, list1) {
   /* list all */
-  ASSERT_EQ(n.size(), Node::fanout);
+  ASSERT_EQ(n.size(), Node_Min1::fanout);
   int count{0};
   auto print_node =
     [&count] (const std::string *k, const std::string *v) -> int {
@@ -76,12 +87,12 @@ TEST_F(Node_Min1, list1) {
       return 0;
     };
     n.list({}, print_node, {});
-    ASSERT_EQ(count, Node::fanout);
+    ASSERT_EQ(count, Node_Min1::fanout);
 }
 
 TEST_F(Node_Min1, list2) {
   /* list in a prefix */
-  ASSERT_EQ(n.size(), Node::fanout);
+  ASSERT_EQ(n.size(), Node_Min1::fanout);
   int count{0};
   auto print_node =
     [&count] (const std::string *k, const std::string *v) -> int {
@@ -96,7 +107,7 @@ TEST_F(Node_Min1, list2) {
 }
 
 TEST_F(Node_Min1, remove1) {
-  ASSERT_EQ(n.size(), Node::fanout);
+  ASSERT_EQ(n.size(), Node_Min1::fanout);
   for (auto ix : {92, 94, 97}) {
     string k = pref + std::to_string(ix);
     if (verbose) {
@@ -104,12 +115,12 @@ TEST_F(Node_Min1, remove1) {
     }
     n.remove(k);
   }
-  ASSERT_EQ(n.size(), Node::fanout - 3);
+  ASSERT_EQ(n.size(), Node_Min1::fanout - 3);
 }
 
 TEST_F(Node_Min1, list3) {
   /* list in a prefix */
-  ASSERT_EQ(n.size(), Node::fanout - 3);
+  ASSERT_EQ(n.size(), Node_Min1::fanout - 3);
   int count{0};
   auto print_node =
     [&count] (const std::string *k, const std::string *v) -> int {
@@ -120,7 +131,7 @@ TEST_F(Node_Min1, list3) {
       return 0;
     };
     n.list({}, print_node, {});
-    ASSERT_EQ(count, Node::fanout - 3);
+    ASSERT_EQ(count, Node_Min1::fanout - 3);
 
     count = 0;
     n.list("f_9", print_node, {});
@@ -133,7 +144,7 @@ TEST_F(Node_Min1, serialize1) {
 }
 
 TEST_F(Node_Min1, unserialize1) {
-  Node n2(min1_serialized_bytes);
+  Node n2(Node_Min1::fanout, min1_serialized_bytes);
   int count{0};
   auto print_node =
     [&count] (const std::string *k, const std::string *v) -> int {
@@ -144,12 +155,12 @@ TEST_F(Node_Min1, unserialize1) {
       return 0;
     };
   n2.list({}, print_node, {});
-  ASSERT_EQ(count, Node::fanout-3);
+  ASSERT_EQ(count, Node_Min1::fanout-3);
 }
 
 TEST_F(Node_Min1, list4) {
   /* list in a prefix */
-  ASSERT_EQ(n.size(), Node::fanout - 3);
+  ASSERT_EQ(n.size(), Node_Min1::fanout - 3);
   int count{0};
   auto print_node =
     [&count] (const std::string *k, const std::string *v) -> int {
@@ -160,7 +171,26 @@ TEST_F(Node_Min1, list4) {
       return 0;
     };
   n.list({}, print_node, {});
-  ASSERT_EQ(count, Node::fanout - 3);
+  ASSERT_EQ(count, Node_Min1::fanout - 3);
+}
+
+TEST_F(Tree_Min1, fill1) {
+  for (int ix = 0; ix < Tree_Min1::fanout; ++ix) {
+    string k = pref + std::to_string(ix);
+    string v = "val for " + k;
+    auto ret = t1.insert(k, v);
+    ASSERT_EQ(ret, 0);
+    /* forbids duplicates */
+    if (ix == 5) {
+      ret = t1.insert(k, v);
+      ASSERT_EQ(ret, EEXIST);
+    }
+  }
+#if 0 /* get Node we have been inserting on, then: */
+  ASSERT_EQ(t1.size(), Node_Min1::fanout);
+  auto ret = t1.insert("foo", "bar");
+  ASSERT_EQ(ret, E2BIG);
+#endif
 }
 
 int main(int argc, char **argv)

@@ -46,7 +46,6 @@ namespace rgw { namespace bplus {
     {
     public:
       static constexpr uint32_t ondisk_version = 1;
-      static constexpr uint32_t fanout = 100;
 
       static constexpr uint32_t FLAG_NONE =     0x0000;
       static constexpr uint32_t FLAG_REQUIRE_PREFIX = 0x0001;
@@ -59,6 +58,7 @@ namespace rgw { namespace bplus {
 	Internal
       };
 
+      const uint32_t fanout;
       uint32_t level; // per convention, 0 is a leaf
 
     private:
@@ -105,10 +105,12 @@ namespace rgw { namespace bplus {
       KeysViewLT keysviewLT;
 
     public:
-      Node()
+      Node(uint32_t _fanout)
+	: fanout(_fanout)
 	{}
 
-      Node(std::vector<uint8_t> flatv)
+      Node(uint32_t _fanout, std::vector<uint8_t> flatv)
+	: fanout(_fanout)
 	{
 	  unserialize(flatv);
 	}

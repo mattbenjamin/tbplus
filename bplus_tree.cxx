@@ -15,10 +15,30 @@
 
 namespace rgw { namespace bplus {
 
-    Tree::Tree(std::string _name)
-      : name(_name)
+    Tree::Tree(std::string _name, uint32_t _fanout)
+      : name(_name), fanout(_fanout)
     {
-      
-    }
+      // build node name stem (random_bytes())
+    } /* Tree(std::string) */
+
+    int Tree::insert(const std::string& key, const std::string& value)
+    {
+      // get_root();
+      // traverse to candidate leaf
+      // try-insert
+      //    !full: insert, done
+      //    full: <split>, choose-leaf, try-insert
+      return 0;
+    } /* insert */
+
+    int Tree::list(const std::optional<std::string>& prefix,
+		  std::function<int(const std::string*, const std::string*)> cb,
+		  std::optional<uint32_t> limit,
+		  uint32_t flags)
+    {
+      int count{0};
+      // TODO: implement
+      return count;
+    } /* list */
 
 }} /* namespace */

@@ -40,12 +40,6 @@ namespace rgw { namespace bplus {
     using lock_guard = std::lock_guard<std::mutex>;
     using unique_lock = std::unique_lock<std::mutex>;
 
-    class Pointer
-    {
-      string key;
-      string oid; // path to on-disk rep
-    };
-    
     class Node
     {
     public:

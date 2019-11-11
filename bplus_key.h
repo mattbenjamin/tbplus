@@ -41,14 +41,14 @@ namespace rgw::bplus {
     unbounded
     };
 
-  using fence_key = std::variant<leaf_key, key_bound>;
+  using fence_key = std::variant<leaf_key, key_range>;
 
   class branch_key
   {
   public:
     fence_key upper;
     fence_key lower;
-  };
+  }; /* branch_key */
 
 }} /* namespace */
 

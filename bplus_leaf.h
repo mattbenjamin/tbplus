@@ -15,6 +15,7 @@
 #define BPLUS_LEAF_H
 
 #include "compat.h"
+#include "bplus_key.h"
 #include <stdint.h>
 #include <string>
 #include <string_view>

@@ -64,6 +64,9 @@ namespace rgw { namespace bplus {
       mutable std::mutex mtx;
       NodeType type;
 
+      fence_key upper_bound;
+      fence_key lower_bound;
+
       // XXX: likely to change with key prefixing
       class KVEntry
       {

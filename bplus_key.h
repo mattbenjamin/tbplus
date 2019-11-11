@@ -11,8 +11,8 @@
  *
  */
 
-#ifndef BPLUS_LEAF_H
-#define BPLUS_LEAF_H
+#ifndef BPLUS_KEY_H
+#define BPLUS_KEY_H
 
 #include "compat.h"
 #include <string>
@@ -21,6 +21,7 @@
 #include <iterator>
 #include <functional>
 #include <utility>
+#include <variant>
 #include <boost/blank.hpp>
 #include <boost/algorithm/string.hpp>
 
@@ -50,6 +51,6 @@ namespace rgw::bplus {
     fence_key lower;
   }; /* branch_key */
 
-}} /* namespace */
+} /* namespace */
 
-#endif /* BPLUS_LEAF_H */
+#endif /* BPLUS_KEY_H */

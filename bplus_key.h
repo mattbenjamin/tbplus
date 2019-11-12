@@ -49,6 +49,9 @@ namespace rgw::bplus {
   public:
     fence_key upper;
     fence_key lower;
+    branch_key(const fence_key& _upper, const fence_key& _lower)
+      : upper(_upper), lower(_lower)
+      {}
   }; /* branch_key */
 
 } /* namespace */

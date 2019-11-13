@@ -15,12 +15,14 @@
 #define BPLUS_KEY_H
 
 #include "compat.h"
+#include <array>
 #include <string>
 #include <string_view>
 #include <vector>
 #include <iterator>
 #include <functional>
 #include <utility>
+#include <limits>
 #include <variant>
 #include <boost/blank.hpp>
 #include <boost/algorithm/string.hpp>
@@ -31,6 +33,26 @@ namespace rgw::bplus {
 
   using prefix_vector = std::vector<std::string>;
 
+  static inline std::string common_prefix(
+    const std::string& lhs, const std::string& rhs,
+    uint16_t min_len) {
+    std::array<const std::string*, 2> sv = {&lhs, &rhs};
+    if (lhs > rhs) {
+      std::swap(sv[0], sv[1]);
+    }
+    uint16_t cnt{0};
+    min_len = std::min(min_len, std::numeric_limits<uint16_t>::max());
+    for (int ix = 0; ix < lhs.length(); ++ix) {
+      if ((*sv[0])[ix] == (*sv[1])[ix])
+	++cnt;
+    }
+    std::string s;
+    if (cnt > min_len) {
+      s = (*sv[0]).substr(0, cnt);
+    }
+    return s;
+  } /* common_prefix */
+  
   class leaf_key
   {
   public:

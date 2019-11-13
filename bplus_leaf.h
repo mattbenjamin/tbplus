@@ -62,10 +62,10 @@ namespace rgw { namespace bplus {
 
     private:
       mutable std::mutex mtx;
-      NodeType type;
 
-      fence_key upper_bound;
-      fence_key lower_bound;
+      NodeType type;
+      branch_key key_range;
+      prefix_vector common_prefixes;
 
       // XXX: likely to change with key prefixing
       class KVEntry
@@ -103,12 +103,15 @@ namespace rgw { namespace bplus {
       KeysViewLT keysviewLT;
 
     public:
-      Node(uint32_t _fanout)
-	: fanout(_fanout)
+      Node(uint32_t _fanout,
+	  branch_key bk = open_key_interval)
+	: fanout(_fanout), key_range(bk)
 	{}
 
-      Node(uint32_t _fanout, std::vector<uint8_t> flatv)
-	: fanout(_fanout)
+      Node(uint32_t _fanout,
+	  std::vector<uint8_t> flatv /* serialized rep */,
+	  branch_key bk = open_key_interval)
+	: fanout(_fanout), key_range(bk)
 	{
 	  unserialize(flatv);
 	}

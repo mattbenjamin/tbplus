@@ -76,7 +76,23 @@ namespace rgw::bplus {
     branch_key(const fence_key& _upper, const fence_key& _lower)
       : upper(_upper), lower(_lower)
       {}
+
+    static inline bool gte(const fence_key& fk, const branch_key& key) {
+      using std::get;
+      // any value compares gte with open lower bound
+      if (std::holds_alternative<key_range>(fk))
+	return true;
+      return get<leaf_key>(fk) < key; // key >= fk
+    } /* gte */
+
+    inline bool in_interval(const branch_key& key) const {
+      return true;
+    } /* in_interval */
   }; /* branch_key */
+
+  static inline branch_key open_key_interval(
+    key_range::unbounded,
+    key_range::unbounded);
 
 } /* namespace */
 

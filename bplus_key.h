@@ -45,6 +45,8 @@ namespace rgw::bplus {
     for (int ix = 0; ix < lhs.length(); ++ix) {
       if ((*sv[0])[ix] == (*sv[1])[ix])
 	++cnt;
+      else
+	break;
     }
     std::string s;
     if (cnt > min_len) {

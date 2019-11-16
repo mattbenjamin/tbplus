@@ -37,7 +37,7 @@ namespace rgw::bplus {
     const std::string& lhs, const std::string& rhs,
     uint16_t min_len) {
     std::array<const std::string*, 2> sv = {&lhs, &rhs};
-    if (lhs > rhs) {
+    if (lhs.length() > rhs.length()) {
       std::swap(sv[0], sv[1]);
     }
     uint16_t cnt{0};

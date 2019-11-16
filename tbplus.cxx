@@ -35,6 +35,15 @@ namespace {
   bool verbose = false;
 
   /* test classes */
+
+  class Strings_Min1 : public ::testing::Test {
+  public:
+    std::string s1{"/sub1/docrequest/D/DOC597z85"};
+    std::string s2{"/sub1/docrequest/D/PDF448x79"};
+    std::string s3{"orange carrot top"};
+    std::string s4{"orange televised gawker trainwreck"};
+  };
+
   class Node_Min1 : public ::testing::Test {
   public:
     static constexpr uint32_t fanout = 100;
@@ -200,6 +209,25 @@ TEST_F(Tree_Min1, fill1) {
   auto ret = t1.insert("foo", "bar");
   ASSERT_EQ(ret, E2BIG);
 #endif
+}
+
+TEST_F(Strings_Min1, cpref1) {
+  std::string r1 = common_prefix(s1, s2, 5);
+  if (verbose) {
+    std::cout << "cpref: " << r1 << " size: " << r1.length() << std::endl;
+  }
+  ASSERT_GE(r1.length(), 0);
+  std::string r2 = common_prefix(s1, s2, 20);
+  if (verbose) {
+    std::cout << "cpref: " << r2 << " size: " << r2.length() << std::endl;
+  }
+  ASSERT_EQ(r2.length(), 0);
+  std::string r3 = common_prefix(s3, s4, 5);
+  std::string r4 = common_prefix(s4, s3, 5);
+  if (verbose) {
+    std::cout << "cpref: " << r3 << " " << r4 << std::endl;
+  }
+  ASSERT_EQ(r3, r4);
 }
 
 int main(int argc, char **argv)

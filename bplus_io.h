@@ -18,7 +18,7 @@
 #include <map>
 #include <iostream>
 #include <random>
-#include "bplus_leaf.h" // uses bplus::Node in the interface
+#include "bplus_node.h" // uses bplus::Node in the interface
 
 namespace rgw { namespace bplus {
 

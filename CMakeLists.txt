@@ -12,7 +12,7 @@ add_subdirectory("flatbuffers"
 
 add_executable(tbplus
   tbplus.cxx
-  bplus_leaf.cxx
+  bplus_node.cxx
   bplus_io.cxx
   bplus_tree.cxx
   ${CMAKE_SOURCE_DIR}/z85/src/z85_impl.cpp

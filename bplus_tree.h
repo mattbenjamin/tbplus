@@ -14,7 +14,7 @@
 #ifndef BPLUS_TREE_H
 #define BPLUS_TREE_H
 
-#include "bplus_leaf.h"
+#include "bplus_node.h"
 #include "bplus_io.h"
 
 namespace rgw { namespace bplus {

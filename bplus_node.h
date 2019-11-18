@@ -11,8 +11,8 @@
  *
  */
 
-#ifndef BPLUS_LEAF_H
-#define BPLUS_LEAF_H
+#ifndef BPLUS_NODE_H
+#define BPLUS_NODE_H
 
 #include "compat.h"
 #include "bplus_key.h"
@@ -267,4 +267,4 @@ namespace rgw { namespace bplus {
 
 }} /* namespace */
 
-#endif /* BPLUS_LEAF_H */
+#endif /* BPLUS_NODE_H */

@@ -49,12 +49,11 @@ namespace rgw { namespace bplus {
 
     enum class NodeType : uint8_t
     {
-      Root,
       Leaf,
-      Internal
+      Branch,
     };
 
-    template <typename K>
+    template <typename K, NodeType T>
     class Node
     {
     public:
@@ -63,7 +62,7 @@ namespace rgw { namespace bplus {
 
     private:
       mutable std::mutex mtx;
-      NodeType type;
+      const NodeType type = T;
       branch_key bounds;
 
       // XXX: likely to change with key prefixing
@@ -256,8 +255,8 @@ namespace rgw { namespace bplus {
 
     }; /* Node */
 
-    using leaf_node = Node<std::string>;
-    using branch_node = Node<branch_key>;
+    using leaf_node = Node<std::string, NodeType::Leaf>;
+    using branch_node = Node<branch_key, NodeType::Branch>;
     using node_ptr = std::variant<leaf_node*, branch_node*>;
 
 }} /* namespace */

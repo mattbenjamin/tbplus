@@ -52,7 +52,7 @@ namespace {
     Node_Min1() {
     }
   };
-  Node n(Node_Min1::fanout);
+  leaf_node n(Node_Min1::fanout);
   std::vector<uint8_t> min1_serialized_bytes;
 
   class Tree_Min1 : public ::testing::Test {
@@ -153,7 +153,7 @@ TEST_F(Node_Min1, serialize1) {
 }
 
 TEST_F(Node_Min1, unserialize1) {
-  Node n2(Node_Min1::fanout, min1_serialized_bytes);
+  leaf_node n2(Node_Min1::fanout, min1_serialized_bytes);
   int count{0};
   auto print_node =
     [&count] (const std::string *k, const std::string *v) -> int {

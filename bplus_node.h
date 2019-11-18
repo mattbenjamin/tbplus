@@ -41,40 +41,38 @@ namespace rgw { namespace bplus {
     using lock_guard = std::lock_guard<std::mutex>;
     using unique_lock = std::unique_lock<std::mutex>;
 
+    static constexpr uint32_t ondisk_version = 1;
+
+    static constexpr uint32_t FLAG_NONE =     0x0000;
+    static constexpr uint32_t FLAG_REQUIRE_PREFIX = 0x0001;
+    static constexpr uint32_t FLAG_LOCKED = 0x0002;
+
+    enum class NodeType : uint8_t
+    {
+      Root,
+      Leaf,
+      Internal
+    };
+
+    template <typename K>
     class Node
     {
     public:
-      static constexpr uint32_t ondisk_version = 1;
-
-      static constexpr uint32_t FLAG_NONE =     0x0000;
-      static constexpr uint32_t FLAG_REQUIRE_PREFIX = 0x0001;
-      static constexpr uint32_t FLAG_LOCKED = 0x0002;
-
-      enum class NodeType : uint8_t
-      {
-	Root,
-	Leaf,
-	Internal
-      };
-
       const uint32_t fanout;
       uint32_t level; // per convention, 0 is a leaf
 
     private:
       mutable std::mutex mtx;
       NodeType type;
-
       branch_key bounds;
-      fence_key upper_bound;
-      fence_key lower_bound;
 
       // XXX: likely to change with key prefixing
       class KVEntry
       {
       public:
-	std::string key;
+	K key;
 	std::string val;
-	KVEntry(const std::string& k, const std::string& v)
+	KVEntry(const K& k, const std::string& v)
 	  : key(k), val(v) {}
 	KVEntry(KVEntry&& rhs)
 	  : key(rhs.key), val(rhs.val) {}
@@ -87,7 +85,7 @@ namespace rgw { namespace bplus {
 
       vector<KVEntry> data; // unsorted vector of {k,v}
 
-      using data_iterator = decltype(data)::iterator;
+      using data_iterator = typename decltype(data)::iterator;
 
       // indirect compf
       struct KeysViewLT
@@ -131,7 +129,7 @@ namespace rgw { namespace bplus {
 	data.clear();
       } /* clear */
 
-      int insert(const std::string& key, const std::string& value) {
+      int insert(const K& key, const std::string& value) {
 	lock_guard guard(mtx);
 	if (data.size() == fanout) {
 	  // oh, noes!  need split
@@ -149,7 +147,7 @@ namespace rgw { namespace bplus {
 	return 0;
       } /* insert */
 
-      int remove(const std::string& key) {
+      int remove(const K& key) {
 	lock_guard guard(mtx);
 	// TODO:  variant backing (local_rep and flatbuffer) */
 	data_iterator kv_it = std::lower_bound(
@@ -218,7 +216,7 @@ namespace rgw { namespace bplus {
 		fbb.Vector(
 		  "kv-data",
 		  [&fbb, &node, fkv]() {
-		    node.list({}, fkv, {}, Node::FLAG_LOCKED);
+		    node.list({}, fkv, {}, FLAG_LOCKED);
 		  });
 		/* XXXX actually this probably is another segment */
 		fbb.Vector(
@@ -236,7 +234,7 @@ namespace rgw { namespace bplus {
 	/* destructively fill from serialized data, return size of
 	 * node after fill */
 	lock_guard guard(mtx);
-	clear(Node::FLAG_LOCKED);
+	clear(FLAG_LOCKED);
 	auto map = flexbuffers::GetRoot(flatv).AsMap();
 	auto vec = map["rgw-bplus-leaf"].AsVector();
 	// header
@@ -258,17 +256,9 @@ namespace rgw { namespace bplus {
 
     }; /* Node */
 
-    class NonLeaf : public Node
-    {
-    public:
-    };
-
-    class Leaf : public Node
-    {
-      vector<string> values;
-    public:
-    };
-    
+    using leaf_node = Node<std::string>;
+    using branch_node = Node<branch_key>;
+    using node_ptr = std::variant<leaf_node*, branch_node*>;
 
 }} /* namespace */
 

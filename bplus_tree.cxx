@@ -37,11 +37,10 @@ namespace rgw { namespace bplus {
       return s;
     } /* gen_node_name() */
 
-    Node* Tree::get_node_for_k(const std::string&) {
-      // find or create node
-      Node* node{nullptr};
+    node_ptr Tree::get_node_for_k(const std::string&) {
+      // XXXX find or create node
 
-      return node;
+      return static_cast<leaf_node*>(nullptr);
     } /* get_node_for_k */
 
     int Tree::insert(const std::string& key, const std::string& value)

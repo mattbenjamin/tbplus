@@ -27,7 +27,7 @@ namespace rgw { namespace bplus {
       const uint32_t fanout;
 
       mutable std::mutex mtx;
-      mutable std::optional<Node*> root_node;
+      mutable std::optional<node_ptr> root_node;
 
     public:
       Tree(std::string _name, uint32_t _fanout);
@@ -36,7 +36,7 @@ namespace rgw { namespace bplus {
       std::string gen_node_name() const;
   
       /* ll api*/
-      Node* get_node_for_k(const std::string& k);
+      node_ptr get_node_for_k(const std::string& k);
 
       /* kv api */
       int insert(const std::string& key, const std::string& value);
@@ -44,7 +44,7 @@ namespace rgw { namespace bplus {
       int list(const std::optional<std::string>& prefix,
 	      std::function<int(const std::string*, const std::string*)> cb,
 	      std::optional<uint32_t> limit,
-	      uint32_t flags = Node::FLAG_NONE);
+	      uint32_t flags = FLAG_NONE);
 
     }; /* Tree */
 

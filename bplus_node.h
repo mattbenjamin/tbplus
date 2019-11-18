@@ -108,6 +108,10 @@ namespace rgw { namespace bplus {
 	: fanout(_fanout), bounds(open_key_interval)
 	{}
 
+      Node(uint32_t _fanout, const branch_key& bounds)
+	: fanout(_fanout), bounds(bounds)
+	{}
+
       Node(uint32_t _fanout, std::vector<uint8_t> flatv)
 	: fanout(_fanout), bounds(open_key_interval)
 	{

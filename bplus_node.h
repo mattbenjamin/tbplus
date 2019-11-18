@@ -43,7 +43,7 @@ namespace rgw { namespace bplus {
 
     static constexpr uint32_t ondisk_version = 1;
 
-    static constexpr uint32_t FLAG_NONE =     0x0000;
+    static constexpr uint32_t FLAG_NONE = 0x0000;
     static constexpr uint32_t FLAG_REQUIRE_PREFIX = 0x0001;
     static constexpr uint32_t FLAG_LOCKED = 0x0002;
 
@@ -58,11 +58,11 @@ namespace rgw { namespace bplus {
     {
     public:
       const uint32_t fanout;
+      const NodeType type = T;
       uint32_t level; // per convention, 0 is a leaf
 
     private:
       mutable std::mutex mtx;
-      const NodeType type = T;
       branch_key bounds;
 
       // XXX: likely to change with key prefixing

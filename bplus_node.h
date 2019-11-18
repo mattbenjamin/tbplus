@@ -64,6 +64,7 @@ namespace rgw { namespace bplus {
       mutable std::mutex mtx;
       NodeType type;
 
+      branch_key bounds;
       fence_key upper_bound;
       fence_key lower_bound;
 
@@ -104,11 +105,11 @@ namespace rgw { namespace bplus {
 
     public:
       Node(uint32_t _fanout)
-	: fanout(_fanout)
+	: fanout(_fanout), bounds(open_key_interval)
 	{}
 
       Node(uint32_t _fanout, std::vector<uint8_t> flatv)
-	: fanout(_fanout)
+	: fanout(_fanout), bounds(open_key_interval)
 	{
 	  unserialize(flatv);
 	}

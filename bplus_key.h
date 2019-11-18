@@ -78,6 +78,10 @@ namespace rgw::bplus {
       {}
   }; /* branch_key */
 
+  static inline branch_key open_key_interval(
+    key_range::unbounded,
+    key_range::unbounded);
+
 } /* namespace */
 
 #endif /* BPLUS_KEY_H */

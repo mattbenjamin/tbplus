@@ -57,9 +57,10 @@ namespace rgw { namespace bplus {
     class Node
     {
     public:
-      const uint32_t fanout;
       const NodeType type = T;
       uint32_t level; // per convention, 0 is a leaf
+      const uint32_t fanout;
+      const uint16_t prefix_min_len;
 
     private:
       mutable std::mutex mtx;
@@ -101,16 +102,17 @@ namespace rgw { namespace bplus {
       KeysViewLT keysviewLT;
 
     public:
-      Node(uint32_t _fanout)
-	: fanout(_fanout), bounds(open_key_interval)
+      Node(uint32_t _fanout, uint16_t _prefix_min_len)
+	: fanout(_fanout), prefix_min_len(_prefix_min_len),
+	  bounds(open_key_interval)
 	{}
 
-      Node(uint32_t _fanout, const branch_key& bounds)
-	: fanout(_fanout), bounds(bounds)
+      Node(uint32_t _fanout, uint16_t _prefix_min_len, const branch_key& bounds)
+	: fanout(_fanout), prefix_min_len(_prefix_min_len), bounds(bounds)
 	{}
 
       Node(uint32_t _fanout, std::vector<uint8_t> flatv)
-	: fanout(_fanout), bounds(open_key_interval)
+	: fanout(_fanout), prefix_min_len(0), bounds(open_key_interval)
 	{
 	  unserialize(flatv);
 	}

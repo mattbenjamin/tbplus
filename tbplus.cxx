@@ -47,12 +47,13 @@ namespace {
   class Node_Min1 : public ::testing::Test {
   public:
     static constexpr uint32_t fanout = 100;
+    static constexpr uint16_t prefix_min_len = 2;
     string pref{"f_"};
   public:
     Node_Min1() {
     }
   };
-  leaf_node n(Node_Min1::fanout);
+  leaf_node n(Node_Min1::fanout, Node_Min1::prefix_min_len);
   std::vector<uint8_t> min1_serialized_bytes;
 
   class Tree_Min1 : public ::testing::Test {

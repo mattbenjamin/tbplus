@@ -71,7 +71,7 @@ TEST_F(Node_Min1, fill1) {
   for (int ix = 0; ix < Node_Min1::fanout; ++ix) {
     string k = pref + std::to_string(ix);
     string v = "val for " + k;
-    auto ret = n.insert(k, v);
+    auto ret = n.insert(leaf_key(k), v);
     ASSERT_EQ(ret, 0);
     /* forbids duplicates */
     if (ix == 5) {
@@ -80,7 +80,7 @@ TEST_F(Node_Min1, fill1) {
     }
   }
   ASSERT_EQ(n.size(), Node_Min1::fanout);
-  auto ret = n.insert("foo", "bar");
+  auto ret = n.insert(leaf_key("foo"), "bar");
   ASSERT_EQ(ret, E2BIG);
 }
 

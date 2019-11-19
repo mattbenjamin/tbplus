@@ -66,7 +66,6 @@ namespace rgw { namespace bplus {
       mutable std::mutex mtx;
       branch_key bounds;
 
-      // XXX: likely to change with key prefixing
       class KVEntry
       {
       public:
@@ -257,7 +256,7 @@ namespace rgw { namespace bplus {
 
     }; /* Node */
 
-    using leaf_node = Node<std::string, NodeType::Leaf>;
+    using leaf_node = Node<leaf_key, NodeType::Leaf>;
     using branch_node = Node<branch_key, NodeType::Branch>;
     using node_ptr = std::variant<leaf_node*, branch_node*>;
 

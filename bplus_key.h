@@ -58,8 +58,17 @@ namespace rgw::bplus {
   class leaf_key
   {
   public:
-    std::optional<uint16_t> pref_off; // offset in local prefix vector
+    std::optional<
+    std::variant<
+      std::string /* string prefix */,
+      uint16_t    /* offset in local prefix vector */
+      >> prefix;
     std::string stem;
+  public:
+    leaf_key(const std::string& _str)
+      : stem(_str) {}
+    leaf_key(const std::string& _prefix, const std::string& _stem)
+      : prefix(_prefix), stem(_stem) {}
   }; /* leaf_key */
 
   enum class key_range : uint8_t {

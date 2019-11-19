@@ -125,6 +125,21 @@ namespace rgw::bplus {
     return true; /* XXXX */
   }
 
+  static inline bool equal_to(
+    const prefix_vector& pv, const std::string& lk, const std::string& rk) {
+    return (lk == rk);
+  }
+
+  static inline bool equal_to(
+    const prefix_vector& pv, const leaf_key& lk, const leaf_key& rk) {
+    return (lk.tie_prefix(pv) == rk.tie_prefix(pv));
+  }
+
+  static inline bool equal_to(
+    const prefix_vector& pv, const branch_key& lk, const branch_key& rk) {
+    return true; /* XXXX */
+  }
+
 } /* namespace */
 
 #endif /* BPLUS_KEY_H */

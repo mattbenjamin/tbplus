@@ -96,10 +96,8 @@ namespace rgw { namespace bplus {
 
 	bool operator()(const KVEntry& lhs, const KVEntry& rhs) const
 	  { return less_than(pv, lhs.key, rhs.key); }
-
 	bool operator()(const K& k, const KVEntry& rhs) const
 	  { return less_than(pv, k, rhs.key); }
-
 	bool operator()(const KVEntry& lhs, const K& k) const
 	  { return less_than(pv, lhs.key, k); }
       }; /* KeysViewLT */
@@ -111,11 +109,11 @@ namespace rgw { namespace bplus {
 	KeysViewEQ(prefix_vector& _pv)
 	  : pv(_pv) {}
 	bool operator()(const KVEntry& lhs, const KVEntry& rhs) const
-	  { return (lhs.key == rhs.key); }
+	  { return equal_to(pv, lhs.key, rhs.key); }
 	bool operator()(const K& k, const KVEntry& rhs) const
-	  { return (k == rhs.key); }
+	  { return equal_to(pv, k, rhs.key); }
 	bool operator()(const KVEntry& lhs, const K& k) const
-	  { return (lhs.key == k); }
+	  { return equal_to(pv, lhs.key, k); }
       }; /* KeysViewEQ */
 
       KeysViewLT keysviewLT;
@@ -161,7 +159,7 @@ namespace rgw { namespace bplus {
 	data_iterator kv_it = std::lower_bound(
 	  data.begin(), data.end(), key, keysviewLT);
 	if (kv_it != data.end()) {
-	  if(unlikely(kv_it->key == key)) {
+	  if(unlikely(equal_to(pv, kv_it->key, key))) {
 	    return EEXIST;
 	  }
 	}
@@ -176,7 +174,7 @@ namespace rgw { namespace bplus {
 	data_iterator kv_it = std::lower_bound(
 	  data.begin(), data.end(), key, keysviewLT);
 	if (kv_it != data.end() &&
-	    kv_it->key == key) {
+	    equal_to(pv, kv_it->key, key)) {
 	  data.erase(kv_it);
 	}
 	return 0;

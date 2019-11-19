@@ -20,6 +20,7 @@
 #include <string_view>
 #include <vector>
 #include <iterator>
+#include <tuple>
 #include <functional>
 #include <utility>
 #include <limits>
@@ -30,8 +31,9 @@
 namespace rgw::bplus {
 
   namespace ba = boost::algorithm;
-
   using prefix_vector = std::vector<std::string>;
+
+  static constexpr std::string_view nullstr{""};
 
   static inline std::string common_prefix(
     const std::string& lhs, const std::string& rhs,
@@ -69,6 +71,22 @@ namespace rgw::bplus {
       : stem(_str) {}
     leaf_key(const std::string& _prefix, const std::string& _stem)
       : prefix(_prefix), stem(_stem) {}
+
+    std::tuple<const std::string_view&, const std::string_view&>
+    tie_prefix(const prefix_vector& pv) const {
+      using std::get;
+      if (prefix) {
+	// expanded prefix
+	if (std::holds_alternative<std::string>(*prefix)) {
+	  return std::tie(get<std::string>(*prefix), stem);
+	}
+	// satisfy prefix from pv
+	return std::tie(pv[get<uint16_t>(*prefix)], stem);
+      }
+      // no prefix
+      return std::tie(nullstr, stem);
+    } /* tie_prefix */
+
   }; /* leaf_key */
 
   enum class key_range : uint8_t {
@@ -80,6 +98,7 @@ namespace rgw::bplus {
   class branch_key
   {
   public:
+    /* XXX casey: need only lower bound? */
     fence_key upper;
     fence_key lower;
     branch_key(const fence_key& _upper, const fence_key& _lower)
@@ -90,6 +109,21 @@ namespace rgw::bplus {
   static inline branch_key open_key_interval(
     key_range::unbounded,
     key_range::unbounded);
+
+  static inline bool less_than(
+    const prefix_vector& pv, const std::string& lk, const std::string& rk) {
+    return (lk < rk);
+  }
+
+  static inline bool less_than(
+    const prefix_vector& pv, const leaf_key& lk, const leaf_key& rk) {
+    return (lk.tie_prefix(pv) < rk.tie_prefix(pv));
+  }
+
+  static inline bool less_than(
+    const prefix_vector& pv, const branch_key& lk, const branch_key& rk) {
+    return true; /* XXXX */
+  }
 
 } /* namespace */
 

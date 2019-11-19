@@ -58,7 +58,6 @@ namespace rgw { namespace bplus {
     {
     public:
       const NodeType type = T;
-      uint32_t level; // per convention, 0 is a leaf
       const uint32_t fanout;
       const uint16_t prefix_min_len;
 
@@ -82,36 +81,60 @@ namespace rgw { namespace bplus {
 	}
       }; /* KVEntry */
 
-      vector<KVEntry> data; // unsorted vector of {k,v}
+      vector<KVEntry> data; // sorted vector of {k,v}
+      prefix_vector pv;
 
       using data_iterator = typename decltype(data)::iterator;
 
       // indirect compf
       struct KeysViewLT
       {
+	prefix_vector& pv;
       public:
+	KeysViewLT(prefix_vector& _pv)
+	  : pv(_pv) {}
+
 	bool operator()(const KVEntry& lhs, const KVEntry& rhs) const
-	  { return (lhs.key < rhs.key); }
-	bool operator()(const std::string& k, const KVEntry& rhs) const
-	  { return (k < rhs.key); }
-	bool operator()(const KVEntry& lhs, const std::string& k) const
-	  { return (lhs.key < k); }
+	  { return less_than(pv, lhs.key, rhs.key); }
+
+	bool operator()(const K& k, const KVEntry& rhs) const
+	  { return less_than(pv, k, rhs.key); }
+
+	bool operator()(const KVEntry& lhs, const K& k) const
+	  { return less_than(pv, lhs.key, k); }
       }; /* KeysViewLT */
 
+      struct KeysViewEQ
+      {
+	prefix_vector& pv;
+      public:
+	KeysViewEQ(prefix_vector& _pv)
+	  : pv(_pv) {}
+	bool operator()(const KVEntry& lhs, const KVEntry& rhs) const
+	  { return (lhs.key == rhs.key); }
+	bool operator()(const K& k, const KVEntry& rhs) const
+	  { return (k == rhs.key); }
+	bool operator()(const KVEntry& lhs, const K& k) const
+	  { return (lhs.key == k); }
+      }; /* KeysViewEQ */
+
       KeysViewLT keysviewLT;
+      KeysViewEQ keysviewEQ;
 
     public:
       Node(uint32_t _fanout, uint16_t _prefix_min_len)
 	: fanout(_fanout), prefix_min_len(_prefix_min_len),
-	  bounds(open_key_interval)
+	  bounds(open_key_interval), keysviewLT(pv), keysviewEQ(pv)
 	{}
 
       Node(uint32_t _fanout, uint16_t _prefix_min_len, const branch_key& bounds)
-	: fanout(_fanout), prefix_min_len(_prefix_min_len), bounds(bounds)
+	: fanout(_fanout), prefix_min_len(_prefix_min_len), bounds(bounds),
+	  keysviewLT(pv), keysviewEQ(pv)
 	{}
 
       Node(uint32_t _fanout, std::vector<uint8_t> flatv)
-	: fanout(_fanout), prefix_min_len(0), bounds(open_key_interval)
+	: fanout(_fanout), prefix_min_len(0), bounds(open_key_interval),
+	  keysviewLT(pv), keysviewEQ(pv)
 	{
 	  unserialize(flatv);
 	}

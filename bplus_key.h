@@ -31,6 +31,8 @@
 namespace rgw::bplus {
 
   namespace ba = boost::algorithm;
+
+  using std::get;
   using prefix_vector = std::vector<std::string>;
 
   static constexpr std::string_view nullstr{""};
@@ -74,7 +76,6 @@ namespace rgw::bplus {
 
     std::tuple<const std::string_view&, const std::string_view&>
     tie_prefix(const prefix_vector& pv) const {
-      using std::get;
       if (prefix) {
 	// expanded prefix
 	if (std::holds_alternative<std::string>(*prefix)) {
@@ -87,6 +88,14 @@ namespace rgw::bplus {
       return std::tie(nullstr, stem);
     } /* tie_prefix */
 
+    std::string to_string(const prefix_vector& pv) const {
+      std::string str{};
+      auto ps = tie_prefix(pv);
+      str.reserve(get<0>(ps).length() + get<1>(ps).length());
+      str += get<0>(ps);
+      str += get<1>(ps);
+      return str;
+    } /* to_string*/
   }; /* leaf_key */
 
   enum class key_range : uint8_t {

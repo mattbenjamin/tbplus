@@ -204,7 +204,8 @@ namespace rgw { namespace bplus {
 	      !ba::starts_with(k, *prefix)) {
 	    goto out;
 	  }
-	  auto ret = cb(&k, &it->val);
+	  //auto ret = cb(&k, &it->val);
+	  auto ret = cb(&k.to_string(pv) /* XXX */, &it->val);
 	  ++count;
 	}
       out:

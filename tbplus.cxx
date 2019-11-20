@@ -154,7 +154,8 @@ TEST_F(Node_Min1, serialize1) {
 }
 
 TEST_F(Node_Min1, unserialize1) {
-  leaf_node n2(Node_Min1::fanout, min1_serialized_bytes);
+  leaf_node* n2 = get<leaf_node*>(
+    node_factory::from_flexbuffers(min1_serialized_bytes));
   int count{0};
   auto print_node =
     [&count] (const std::string *k, const std::string *v) -> int {
@@ -164,7 +165,7 @@ TEST_F(Node_Min1, unserialize1) {
       ++count;
       return 0;
     };
-  n2.list({}, print_node, {});
+  n2->list({}, print_node, {});
   ASSERT_EQ(count, Node_Min1::fanout-3);
 }
 

@@ -130,13 +130,6 @@ namespace rgw { namespace bplus {
 	  keysviewLT(pv), keysviewEQ(pv)
 	{}
 
-      Node(uint32_t _fanout, std::vector<uint8_t> flatv)
-	: fanout(_fanout), prefix_min_len(0), bounds(open_key_interval),
-	  keysviewLT(pv), keysviewEQ(pv)
-	{
-	  unserialize(flatv);
-	}
-
       size_t size() const {
 	lock_guard guard(mtx);
 	return data.size();
@@ -199,13 +192,14 @@ namespace rgw { namespace bplus {
 	  : data.begin();
 	for (; it != data.end() && count < lim; ++it) {
 	  auto k = it->key;
+	  auto str = k.to_string(pv);
 	  // stop iteration iff prefix search and prefix not found
 	  if (prefix && (flags & FLAG_REQUIRE_PREFIX) &&
-	      !ba::starts_with(k, *prefix)) {
+	      !ba::starts_with(str, *prefix)) {
 	    goto out;
 	  }
 	  //auto ret = cb(&k, &it->val);
-	  auto ret = cb(&k.to_string(pv) /* XXX */, &it->val);
+	  auto ret = cb(&str /* XXX */, &it->val);
 	  ++count;
 	}
       out:
@@ -233,6 +227,9 @@ namespace rgw { namespace bplus {
 		  "header",
 		  [&fbb, &node, fkv]() {
 		    fbb.UInt(ondisk_version);
+		    fbb.UInt(uint8_t(node.type));
+		    fbb.UInt(node.fanout);
+		    fbb.UInt(node.prefix_min_len);
 		    //fbb.String("more header fields");
 		  });
 		fbb.Vector(
@@ -252,35 +249,59 @@ namespace rgw { namespace bplus {
 	return fbb.GetBuffer();
       } /* serialize */
 
-      int unserialize(std::vector<uint8_t> flatv) {
-	/* destructively fill from serialized data, return size of
-	 * node after fill */
-	lock_guard guard(mtx);
-	clear(FLAG_LOCKED);
-	auto map = flexbuffers::GetRoot(flatv).AsMap();
-	auto vec = map["rgw-bplus-leaf"].AsVector();
-	// header
-	auto header = vec[0].AsVector();
-	auto kv_data = vec[1].AsVector();
-	// kv-data -- fill vectors, then sort keys_view
-	for (int kv_ix = 0; kv_ix < kv_data.size(); kv_ix += 2) {
-	  // TODO:  verify sharing rep (i.e., flatv)
-	  auto key = kv_data[kv_ix].AsString().c_str();
-	  auto val = kv_data[kv_ix+1].AsString().c_str();
-	  data.emplace_back(key, val);
-	}
-	// except keys_view is already sorted!
-	//std::sort(keys_view.begin(), keys_view.end(), keysviewLT);
-	// update log
-	auto update_log = vec[2]; // XXX not used yet
-	return kv_data.size();
-      } /* unserialize */
-
+      friend class node_factory;
     }; /* Node */
 
     using leaf_node = Node<leaf_key, NodeType::Leaf>;
     using branch_node = Node<branch_key, NodeType::Branch>;
     using node_ptr = std::variant<leaf_node*, branch_node*>;
+
+    class node_factory {
+    public:
+      static node_ptr from_flexbuffers(std::vector<uint8_t> flatv) {
+	node_ptr node;
+	auto map = flexbuffers::GetRoot(flatv).AsMap();
+	auto vec = map["rgw-bplus-leaf"].AsVector();
+	// header
+	auto header = vec[0].AsVector();
+	NodeType type = NodeType(header[0].AsUInt8());
+	uint32_t fanout = header[1].AsUInt32();
+	uint16_t prefix_min_len = header[2].AsUInt16();
+	auto kv_data = vec[1].AsVector();
+	// kv-data -- fill vectors, then sort keys_view
+	switch(type) {
+	case NodeType::Leaf:
+	  node = new leaf_node(fanout, prefix_min_len);
+	  break;
+	case NodeType::Branch:
+	  break;
+	default:
+	  // unknown type
+	  // XXXX
+	  break;
+	};
+	for (int kv_ix = 0; kv_ix < kv_data.size(); kv_ix += 2) {
+	  // TODO:  verify sharing rep (i.e., flatv)
+	  auto key = kv_data[kv_ix].AsString().c_str();
+	  auto val = kv_data[kv_ix+1].AsString().c_str();
+	  switch(type) {
+	  case NodeType::Leaf:
+	    get<leaf_node*>(node)->data.emplace_back(leaf_key(key), val);
+	    break;
+	  case NodeType::Branch:
+	    break;
+	  default:
+	    // unknown type
+	    break;
+	  };
+	}
+	// except keys_view is already sorted!
+	//std::sort(keys_view.begin(), keys_view.end(), keysviewLT);
+	// update log
+	auto update_log = vec[2]; // XXX not used yet
+	return node;
+      } /* from_flexbuffers */
+    }; /* unserialize_node */
 
 }} /* namespace */
 

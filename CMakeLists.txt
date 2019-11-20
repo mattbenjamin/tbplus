@@ -15,6 +15,7 @@ add_executable(tbplus
   bplus_node.cxx
   bplus_io.cxx
   bplus_tree.cxx
+  ${CMAKE_SOURCE_DIR}/flatbuffers/src/util.cpp
   ${CMAKE_SOURCE_DIR}/z85/src/z85_impl.cpp
   ${CMAKE_SOURCE_DIR}/z85/src/z85.c
   )

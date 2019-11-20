@@ -25,6 +25,7 @@
 #include <utility>
 #include <limits>
 #include <variant>
+#include <iostream>
 #include <boost/blank.hpp>
 #include <boost/algorithm/string.hpp>
 
@@ -33,6 +34,7 @@ namespace rgw::bplus {
   namespace ba = boost::algorithm;
 
   using std::get;
+  using std::tuple;
   using prefix_vector = std::vector<std::string>;
 
   static constexpr std::string_view nullstr{""};
@@ -58,7 +60,42 @@ namespace rgw::bplus {
     }
     return s;
   } /* common_prefix */
-  
+
+  using sv_tuple = tuple<const std::string_view&, const std::string_view&>;
+
+  static inline size_t len(const sv_tuple& tp) {
+    return get<0>(tp).length() + get<1>(tp).length();
+  } /* len */
+
+  static inline char at(const sv_tuple& tp, int ix) {
+    int llen = get<0>(tp).length();
+    if ((llen > 0) &&
+	(ix < llen)) {
+      return get<0>(tp)[ix];
+    }
+    return get<1>(tp)[ix-llen];
+  } /* at */
+
+  /* XXX builtin operator< failed here (illegal access) */
+  static inline bool less_than(const sv_tuple& lhs, const sv_tuple& rhs)
+  {
+    std::array<const sv_tuple*, 2> svt = {&lhs, &rhs};
+    if (len(lhs) > len(rhs)) {
+      std::swap(svt[0], svt[1]);
+    }
+    for (int ix = 0, lhs_len = len(lhs); ix < lhs_len; ++ix) {
+      auto t1 = svt[0];
+      auto t2 = svt[1];
+      std::cout << t1 << " " << t2 << std::endl;
+#if 0
+      std::cout << " lhs: " << at(*svt[0], ix)
+		<< " rhs: " << at(*svt[1], ix)
+		<< std::endl;
+#endif
+    }
+    return true;
+  }
+
   class leaf_key
   {
   public:
@@ -126,6 +163,9 @@ namespace rgw::bplus {
 
   static inline bool less_than(
     const prefix_vector& pv, const leaf_key& lk, const leaf_key& rk) {
+    auto ltied = lk.tie_prefix(pv);
+    auto rtied = rk.tie_prefix(pv);
+    bool eq = less_than(ltied, rtied);
     return (lk.tie_prefix(pv) < rk.tie_prefix(pv));
   }
 
@@ -141,6 +181,7 @@ namespace rgw::bplus {
 
   static inline bool equal_to(
     const prefix_vector& pv, const leaf_key& lk, const leaf_key& rk) {
+    /* XXX hmm */
     return (lk.tie_prefix(pv) == rk.tie_prefix(pv));
   }
 

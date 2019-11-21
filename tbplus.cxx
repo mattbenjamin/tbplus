@@ -46,7 +46,7 @@ namespace {
 
   class Node_Min1 : public ::testing::Test {
   public:
-    static constexpr uint32_t fanout = 12;
+    static constexpr uint32_t fanout = 100;
     static constexpr uint16_t prefix_min_len = 2;
     string pref{"f_"};
   public:
@@ -75,9 +75,6 @@ TEST_F(Node_Min1, fill1) {
       std::cout << "Node_Min1::fill1 to-insert " << k << std::endl;
     }
     auto ret = n.insert(leaf_key(k), v);
-    if (verbose) {
-      n.dump_keys();
-    }
     ASSERT_EQ(ret, 0);
     /* forbids duplicates */
     if (ix == 5) {
@@ -105,7 +102,7 @@ TEST_F(Node_Min1, list1) {
     n.list({}, print_node, {});
     ASSERT_EQ(count, Node_Min1::fanout);
 }
-#if 0
+
 TEST_F(Node_Min1, list2) {
   /* list in a prefix */
   ASSERT_EQ(n.size(), Node_Min1::fanout);
@@ -238,7 +235,7 @@ TEST_F(Strings_Min1, cpref1) {
   }
   ASSERT_EQ(r3, r4);
 }
-#endif
+
 int main(int argc, char **argv)
 {
   int code = 0;

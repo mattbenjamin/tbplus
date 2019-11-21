@@ -102,10 +102,9 @@ namespace rgw::bplus {
 	}
       }
     } /* for ix */
-    if (ident) {
+    if (ident && (lhs_len == rhs_len)) {
       return false;
     }
-    //std::cout << lhs << " is less than " << rhs << std::endl;
     return true;
   } /* less_than(sv_tuple, sv_tuple) */
 
@@ -195,7 +194,8 @@ namespace rgw::bplus {
 
   static inline bool less_than(
     const prefix_vector& pv, const leaf_key& lk, const leaf_key& rk) {
-    return (less_than(lk.tie_prefix(pv), rk.tie_prefix(pv)));
+    auto res = less_than(lk.tie_prefix(pv), rk.tie_prefix(pv));
+    return (res);
   }
 
   static inline bool less_than(
@@ -215,10 +215,12 @@ namespace rgw::bplus {
      * all leaf_keys are prefix-compressed */
     auto ltied = lk.tie_prefix(pv);
     auto rtied = rk.tie_prefix(pv);
+    bool res{false};
     if (get<0>(ltied).length() == get<0>(rtied).length())
-      return (ltied == rtied);
+      res = (ltied == rtied);
     else
-      return (lk.to_string(pv) == rk.to_string(pv));
+      res = (lk.to_string(pv) == rk.to_string(pv));
+    return (res);
   }
 
   static inline bool equal_to(

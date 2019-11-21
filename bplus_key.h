@@ -120,6 +120,7 @@ namespace rgw::bplus {
   public:
     leaf_key(const std::string& _str)
       : stem(_str) {}
+
     leaf_key(const std::string& _prefix, const std::string& _stem)
       : prefix(_prefix), stem(_stem) {}
 

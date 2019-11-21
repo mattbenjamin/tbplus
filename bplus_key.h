@@ -83,7 +83,7 @@ namespace rgw::bplus {
     os << get<1>(sv);
     os << ">";
     return os;
-  }
+  } /* pretty-print sv_tuple */
 
   static inline bool less_than(const sv_tuple& lhs, const sv_tuple& rhs)
   {
@@ -107,7 +107,7 @@ namespace rgw::bplus {
     }
     //std::cout << lhs << " is less than " << rhs << std::endl;
     return true;
-  }
+  } /* less_than(sv_tuple, sv_tuple) */
 
   class leaf_key
   {
@@ -146,7 +146,26 @@ namespace rgw::bplus {
       str += get<1>(ps);
       return str;
     } /* to_string*/
+
+    friend std::ostream& operator<<(std::ostream &os, leaf_key const &lk);
   }; /* leaf_key */
+
+  inline std::ostream& operator<<(std::ostream &os, leaf_key const &lk) {
+    os << "<leaf_key: prefix=";
+    if (lk.prefix) {
+      if (std::holds_alternative<std::string>(*lk.prefix)) {
+	os << get<std::string>(*lk.prefix);
+      } else {
+	os << get<uint16_t>(*lk.prefix);
+      }
+    } else {
+      os << "<undef>";
+    }
+    os << "; stem=";
+    os << lk.stem;
+    os << ">";
+    return os;
+  } /* pretty-print leaf_key */
 
   enum class key_range : uint8_t {
     unbounded

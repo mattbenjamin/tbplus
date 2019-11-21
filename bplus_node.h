@@ -135,6 +135,14 @@ namespace rgw { namespace bplus {
 	return data.size();
       } /* size */
 
+      void dump_keys() {
+	std::cout << " data vec: ";
+	for (const auto& kv : data) {
+	  std::cout << " " << kv.key;
+	}
+	std::cout << std::endl;
+      }
+
       void clear(uint32_t flags = FLAG_NONE) {
 	unique_lock uniq(mtx, std::defer_lock);
 	if (likely(! (flags & FLAG_LOCKED))) {

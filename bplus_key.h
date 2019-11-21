@@ -225,6 +225,7 @@ namespace rgw::bplus {
 
   static inline bool equal_to(
     const prefix_vector& pv, const branch_key& lk, const branch_key& rk) {
+    abort();
     return true; /* XXXX */
   }
 

@@ -200,6 +200,7 @@ namespace rgw { namespace bplus {
 	  : data.begin();
 	for (; it != data.end() && count < lim; ++it) {
 	  auto k = it->key;
+	  /* XXXX callback should not induce a string temporary */
 	  auto str = k.to_string(pv);
 	  // stop iteration iff prefix search and prefix not found
 	  if (prefix && (flags & FLAG_REQUIRE_PREFIX) &&

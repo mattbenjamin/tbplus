@@ -89,9 +89,9 @@ namespace rgw::bplus {
   {
     const auto lhs_len = len(lhs);
     const auto rhs_len = len(rhs);
-    const auto max = std::min(lhs_len, rhs_len);
+    auto max = std::min(lhs_len, rhs_len);
     bool ident = true;
-    for (int ix = 0; ix < max; ++ix) {
+    for (decltype(max) ix = 0; ix < max; ++ix) {
       if (ident) {
 	if (at(lhs, ix) > at(rhs, ix)) {
 	  return false;

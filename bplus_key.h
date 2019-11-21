@@ -93,11 +93,12 @@ namespace rgw::bplus {
     bool ident = true;
     for (decltype(max) ix = 0; ix < max; ++ix) {
       if (ident) {
-	if (at(lhs, ix) > at(rhs, ix)) {
-	  return false;
-	}
-	if (at(lhs, ix) != at(rhs, ix)) {
+	auto c1 = at(lhs, ix);
+	auto c2 = at(rhs, ix);
+	if (c1 != c2) {
 	  ident = false;
+	  if (c1 > c2)
+	    return false;
 	}
       }
     } /* for ix */

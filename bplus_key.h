@@ -105,7 +105,7 @@ namespace rgw::bplus {
     if (ident) {
       return false;
     }
-    std::cout << lhs << " is less than " << rhs << std::endl;
+    //std::cout << lhs << " is less than " << rhs << std::endl;
     return true;
   }
 

@@ -71,9 +71,6 @@ TEST_F(Node_Min1, fill1) {
   for (int ix = 0; ix < Node_Min1::fanout; ++ix) {
     string k = pref + std::to_string(ix);
     string v = "val for " + k;
-    if (verbose) {
-      std::cout << "Node_Min1::fill1 to-insert " << k << std::endl;
-    }
     auto ret = n.insert(leaf_key(k), v);
     ASSERT_EQ(ret, 0);
     /* forbids duplicates */

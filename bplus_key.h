@@ -61,7 +61,7 @@ namespace rgw::bplus {
     return s;
   } /* common_prefix */
 
-  using sv_tuple = tuple<const std::string_view&, const std::string_view&>;
+  using sv_tuple = tuple<const std::string_view, const std::string_view>;
 
   static inline size_t len(const sv_tuple& tp) {
     return get<0>(tp).length() + get<1>(tp).length();
@@ -76,22 +76,33 @@ namespace rgw::bplus {
     return get<1>(tp)[ix-llen];
   } /* at */
 
-  /* XXX builtin operator< failed here (illegal access) */
+  inline std::ostream& operator<<(std::ostream &os, sv_tuple const &sv) {
+    os << "<sv_tuple: lhs=";
+    os << get<0>(sv);
+    os << "; rhs=";
+    os << get<1>(sv);
+    os << ">";
+    return os;
+  }
+
   static inline bool less_than(const sv_tuple& lhs, const sv_tuple& rhs)
   {
-    std::array<const sv_tuple*, 2> svt = {&lhs, &rhs};
-    if (len(lhs) > len(rhs)) {
-      std::swap(svt[0], svt[1]);
-    }
-    for (int ix = 0, lhs_len = len(lhs); ix < lhs_len; ++ix) {
-      auto t1 = svt[0];
-      auto t2 = svt[1];
-      std::cout << t1 << " " << t2 << std::endl;
-#if 0
-      std::cout << " lhs: " << at(*svt[0], ix)
-		<< " rhs: " << at(*svt[1], ix)
-		<< std::endl;
-#endif
+    const auto lhs_len = len(lhs);
+    const auto rhs_len = len(rhs);
+    const auto max = std::min(lhs_len, rhs_len);
+    bool ident = true;
+    for (int ix = 0; ix < max; ++ix) {
+      if (ident) {
+	if (at(lhs, ix) > at(rhs, ix)) {
+	  return false;
+	}
+	if (at(lhs, ix) != at(rhs, ix)) {
+	  ident = false;
+	}
+      }
+    } /* for ix */
+    if (ident) {
+      return false;
     }
     return true;
   }
@@ -111,7 +122,7 @@ namespace rgw::bplus {
     leaf_key(const std::string& _prefix, const std::string& _stem)
       : prefix(_prefix), stem(_stem) {}
 
-    std::tuple<const std::string_view&, const std::string_view&>
+    std::tuple<const std::string_view, const std::string_view>
     tie_prefix(const prefix_vector& pv) const {
       if (prefix) {
 	// expanded prefix
@@ -163,14 +174,12 @@ namespace rgw::bplus {
 
   static inline bool less_than(
     const prefix_vector& pv, const leaf_key& lk, const leaf_key& rk) {
-    auto ltied = lk.tie_prefix(pv);
-    auto rtied = rk.tie_prefix(pv);
-    bool eq = less_than(ltied, rtied);
-    return (lk.tie_prefix(pv) < rk.tie_prefix(pv));
+    return (less_than(lk.tie_prefix(pv), rk.tie_prefix(pv)));
   }
 
   static inline bool less_than(
     const prefix_vector& pv, const branch_key& lk, const branch_key& rk) {
+    abort(); // TODO: implement
     return true; /* XXXX */
   }
 
@@ -181,8 +190,14 @@ namespace rgw::bplus {
 
   static inline bool equal_to(
     const prefix_vector& pv, const leaf_key& lk, const leaf_key& rk) {
-    /* XXX hmm */
-    return (lk.tie_prefix(pv) == rk.tie_prefix(pv));
+    /* comparison is over the logical sequences, don't assume that
+     * all leaf_keys are prefix-compressed */
+    auto ltied = lk.tie_prefix(pv);
+    auto rtied = rk.tie_prefix(pv);
+    if (get<0>(ltied).length() == get<0>(rtied).length())
+      return (ltied == rtied);
+    else
+      return (lk.to_string(pv) == rk.to_string(pv));
   }
 
   static inline bool equal_to(

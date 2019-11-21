@@ -156,6 +156,7 @@ TEST_F(Node_Min1, serialize1) {
 TEST_F(Node_Min1, unserialize1) {
   leaf_node* n2 = get<leaf_node*>(
     node_factory::from_flexbuffers(min1_serialized_bytes));
+  ASSERT_NE(n2, nullptr);
   int count{0};
   auto print_node =
     [&count] (const std::string *k, const std::string *v) -> int {

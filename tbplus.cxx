@@ -21,6 +21,7 @@
 #include <vector>
 #include <optional>
 #include <boost/program_options.hpp>
+#include "xxhash.h"
 
 #include "bplus_tree.h"
 
@@ -33,6 +34,7 @@ namespace {
   using std::string;
 
   bool verbose = false;
+  static constexpr uint64_t seed = 8675309;
 
   /* test classes */
 
@@ -194,6 +196,31 @@ TEST_F(Tree_Min1, names) {
     }
   }
 }
+
+TEST_F(Tree_Min1, names2) {
+  std::array<int, 31> a1; a1.fill(0);
+  std::array<int, 32> a2; a2.fill(0);
+  for (int ix = 0; ix < 1000; ++ix) {
+    auto name = t1.gen_node_name();
+    uint64_t hash = XXH64(name.data(), name.length(), seed);
+    (a1[hash % 31])++;
+    (a2[hash % 32])++;
+  }
+  int ix;
+  std::cout << "array1:" << std::endl;
+  for (ix = 0; ix < 31; ++ix) {
+    std::cout << /* " ix: " << ix << */ " val: " << a1[ix];
+  }
+  std::cout << std::endl;
+
+ std::cout << "array2:" << std::endl;
+  for (ix = 0; ix < 32; ++ix) {
+    std::cout << /* " ix: " << ix << */ " val: " << a2[ix];
+  }
+  std::cout << std::endl;
+
+}
+
 
 TEST_F(Tree_Min1, fill1) {
   for (int ix = 0; ix < Tree_Min1::fanout; ++ix) {

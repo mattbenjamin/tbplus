@@ -4,3 +4,6 @@
 [submodule "z85"]
 	path = z85
 	url = https://github.com/artemkin/z85.git
+[submodule "xxHash"]
+	path = xxHash
+	url = https://github.com/ceph/xxHash.git

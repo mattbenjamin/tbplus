@@ -195,7 +195,7 @@ namespace rgw { namespace bplus {
 	}
 
 	data_iterator it = (prefix)
-	  ? std::lower_bound(data.begin(), data.end(), *prefix,
+	  ? std::lower_bound(data.begin(), data.end(), K(*prefix),
 			     keysviewLT)
 	  : data.begin();
 	for (; it != data.end() && count < lim; ++it) {

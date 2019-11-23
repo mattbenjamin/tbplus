@@ -102,7 +102,7 @@ namespace rgw::bplus {
 	}
       }
     } /* for ix */
-    if (ident && (lhs_len == rhs_len)) {
+    if (ident && (lhs_len >= rhs_len)) {
       return false;
     }
     return true;

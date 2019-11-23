@@ -275,7 +275,7 @@ namespace rgw { namespace bplus {
 	uint32_t ondisk_version = header[0].AsUInt32();
 	NodeType type = NodeType(header[1].AsUInt8());
 	uint32_t fanout = header[2].AsUInt32();
-	uint16_t prefix_min_len = header[2].AsUInt16();
+	uint16_t prefix_min_len = header[3].AsUInt16();
 	auto kv_data = vec[1].AsVector();
 	// kv-data -- fill vectors, then sort keys_view
 	switch(type) {

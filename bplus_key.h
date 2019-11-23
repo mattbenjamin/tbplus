@@ -176,6 +176,9 @@ namespace rgw::bplus {
 
   using fence_key = std::variant<leaf_key, key_range>;
 
+  static inline fence_key open_bound(
+    key_range::unbounded);
+
   class branch_key
   {
   public:

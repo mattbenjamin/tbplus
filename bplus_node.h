@@ -63,7 +63,9 @@ namespace rgw { namespace bplus {
 
     private:
       mutable std::mutex mtx;
-      branch_key bounds;
+
+      fence_key upper_bound;
+      fence_key lower_bound;
 
       class KVEntry
       {
@@ -122,11 +124,13 @@ namespace rgw { namespace bplus {
     public:
       Node(uint32_t _fanout, uint16_t _prefix_min_len)
 	: fanout(_fanout), prefix_min_len(_prefix_min_len),
-	  bounds(open_key_interval), keysviewLT(pv), keysviewEQ(pv)
+	  lower_bound(open_bound), upper_bound(open_bound),
+	  keysviewLT(pv), keysviewEQ(pv)
 	{}
 
       Node(uint32_t _fanout, uint16_t _prefix_min_len, const branch_key& bounds)
-	: fanout(_fanout), prefix_min_len(_prefix_min_len), bounds(bounds),
+	: fanout(_fanout), prefix_min_len(_prefix_min_len),
+	  lower_bound(open_bound), upper_bound(open_bound),
 	  keysviewLT(pv), keysviewEQ(pv)
 	{}
 

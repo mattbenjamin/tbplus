@@ -260,6 +260,34 @@ TEST_F(Strings_Min1, cpref1) {
   ASSERT_EQ(r3, r4);
 }
 
+TEST_F(Strings_Min1, pref_eq1) {
+  vector<string> pv = {"one", "one_"};
+  string s1{"one_two_three"};
+  leaf_key lk1{pv[0], "_two_three"};
+  leaf_key lk2{pv[1], "two_three"};
+  leaf_key lk3{0, "_two_three"};
+  leaf_key lk4{1, "two_three"};
+  ASSERT_TRUE(equal_to(pv, lk1, lk2));
+  ASSERT_TRUE(equal_to(pv, lk1, lk3));
+  ASSERT_TRUE(equal_to(pv, lk1, lk4));
+  leaf_key lk5{pv[1], "_two_three"};
+  ASSERT_FALSE(equal_to(pv, lk1, lk5));
+  ASSERT_EQ(lk1.to_string(pv), s1);
+  ASSERT_EQ(lk3.to_string(pv), s1);
+}
+
+TEST_F(Strings_Min1, pref_lt1) {
+  vector<string> pv = {"abc", "def"};
+  leaf_key lk1{pv[0], "_apple"};
+  leaf_key lk2{pv[1], "_orange"};
+  leaf_key lk3{0, "_apple"};
+  leaf_key lk4{1, "_orange"};
+  ASSERT_TRUE(less_than(pv, lk1, lk2));
+  ASSERT_FALSE(less_than(pv, lk2, lk1));
+  ASSERT_TRUE(less_than(pv, lk3, lk4));
+  ASSERT_FALSE(less_than(pv, lk4, lk3)); 
+}
+
 int main(int argc, char **argv)
 {
   int code = 0;

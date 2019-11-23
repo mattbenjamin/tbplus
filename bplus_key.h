@@ -124,6 +124,9 @@ namespace rgw::bplus {
     leaf_key(const std::string& _prefix, const std::string& _stem)
       : prefix(_prefix), stem(_stem) {}
 
+    leaf_key(uint16_t _prefix, const std::string& _stem)
+      : prefix(_prefix), stem(_stem) {}
+
     std::tuple<const std::string_view, const std::string_view>
     tie_prefix(const prefix_vector& pv) const {
       if (prefix) {

@@ -218,7 +218,6 @@ namespace rgw { namespace bplus {
       std::vector<uint8_t> serialize() {
 	lock_guard guard(mtx);
 	flexbuffers::Builder fbb;
-	/* TODO: recursion -> iteration */
 
 	auto fkv =
 	  [&fbb] (const std::string *k, const std::string *v) -> int {
@@ -273,8 +272,9 @@ namespace rgw { namespace bplus {
 	auto vec = map["rgw-bplus-leaf"].AsVector();
 	// header
 	auto header = vec[0].AsVector();
-	NodeType type = NodeType(header[0].AsUInt8());
-	uint32_t fanout = header[1].AsUInt32();
+	uint32_t ondisk_version = header[0].AsUInt32();
+	NodeType type = NodeType(header[1].AsUInt8());
+	uint32_t fanout = header[2].AsUInt32();
 	uint16_t prefix_min_len = header[2].AsUInt16();
 	auto kv_data = vec[1].AsVector();
 	// kv-data -- fill vectors, then sort keys_view

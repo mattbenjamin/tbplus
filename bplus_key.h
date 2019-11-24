@@ -182,10 +182,16 @@ namespace rgw::bplus {
   class branch_key
   {
   public:
-    fence_key lower_bound;
-    branch_key(const fence_key& _lower)
-      : lower_bound(_lower)
+    fence_key fk; /* lower bound */
+    branch_key(const fence_key& _fk)
+      : fk(_fk)
       {}
+    bool unbounded() const {
+      return std::holds_alternative<key_range>(fk);
+    }
+    const leaf_key& as_leaf_key() const {
+      return get<leaf_key>(fk);
+    }
   }; /* branch_key */
 
   static inline bool less_than(
@@ -201,8 +207,20 @@ namespace rgw::bplus {
 
   static inline bool less_than(
     const prefix_vector& pv, const branch_key& lk, const branch_key& rk) {
-    abort(); // TODO: implement
-    return true; /* XXXX */
+    if (lk.unbounded()) {
+      if (!rk.unbounded())
+	return true;
+      else
+	return false;
+    }
+    /* lk is not unbounded so rk==unbounded > lk */
+    if (rk.unbounded())
+      return false;
+    /* unbounded checks prove lk and rk are leaf_keys */
+    auto& lfk = lk.as_leaf_key();
+    auto& rfk = rk.as_leaf_key();
+    auto res = less_than(pv, lfk, rfk);
+    return (res);
   }
 
   static inline bool equal_to(
@@ -226,8 +244,20 @@ namespace rgw::bplus {
 
   static inline bool equal_to(
     const prefix_vector& pv, const branch_key& lk, const branch_key& rk) {
-    abort();
-    return true; /* XXXX */
+    if (lk.unbounded()) {
+      if (rk.unbounded())
+	return true;
+      else
+	return false;
+    }
+    /* lk is not unbounded so rk==unbounded > lk */
+    if (rk.unbounded())
+      return false;
+    /* unbounded checks prove lk and rk are leaf_keys */
+    auto& lfk = lk.as_leaf_key();
+    auto& rfk = rk.as_leaf_key();
+    auto res = equal_to(pv, lfk, rfk);
+    return (res);
   }
 
 } /* namespace */

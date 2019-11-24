@@ -64,8 +64,8 @@ namespace rgw { namespace bplus {
     private:
       mutable std::mutex mtx;
 
-      fence_key upper_bound;
       fence_key lower_bound;
+      fence_key upper_bound;
 
       class KVEntry
       {

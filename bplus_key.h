@@ -182,17 +182,11 @@ namespace rgw::bplus {
   class branch_key
   {
   public:
-    /* XXX casey: need only lower bound? */
-    fence_key upper;
-    fence_key lower;
-    branch_key(const fence_key& _upper, const fence_key& _lower)
-      : upper(_upper), lower(_lower)
+    fence_key lower_bound;
+    branch_key(const fence_key& _lower)
+      : lower_bound(_lower)
       {}
   }; /* branch_key */
-
-  static inline branch_key open_key_interval(
-    key_range::unbounded,
-    key_range::unbounded);
 
   static inline bool less_than(
     const prefix_vector& pv, const std::string& lk, const std::string& rk) {

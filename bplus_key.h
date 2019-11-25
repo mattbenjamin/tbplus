@@ -281,6 +281,8 @@ namespace rgw::bplus {
     auto cp = common_prefix(kstr, prevk.to_string(pv), min_len);
     if (cp.length() > 0) {
       if ((! res) ||
+	  /* case 3: prefk is prefixed, k and prefk share a common
+	   * prefix longer than prefk's prefix */
 	  (cp.length() > pv[pref_off].length())) {
 	pv.push_back(cp);
 	res = leaf_key(pv.size()-1, kstr.substr(cp.length()));

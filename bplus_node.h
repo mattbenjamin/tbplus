@@ -46,6 +46,7 @@ namespace rgw { namespace bplus {
     static constexpr uint32_t FLAG_NONE = 0x0000;
     static constexpr uint32_t FLAG_REQUIRE_PREFIX = 0x0001;
     static constexpr uint32_t FLAG_LOCKED = 0x0002;
+    static constexpr uint32_t FLAG_STOP = 0x0004;
 
     enum class NodeType : uint8_t
     {
@@ -224,7 +225,11 @@ namespace rgw { namespace bplus {
 	  //auto ret = cb(&k, &it->val);
 	  auto ret = cb(&str /* XXX */, &it->val);
 	  ++count;
-	}
+	  /* terminate iteration ?*/
+	  if (ret & FLAG_STOP) {
+	    break;
+	  }
+	} /* foreach data */
       out:
 	return count;
       } /* list */

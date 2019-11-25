@@ -168,8 +168,18 @@ namespace rgw { namespace bplus {
 	    return EEXIST;
 	  }
 	}
+	// key prefixing
+	K& ref_key = const_cast<K&>(key);
+	if (kv_it != data.begin()) {
+	  auto prev_it = std::prev(kv_it);
+	  auto pref_key = make_prefix_key(
+	    pv, key, prev_it->key, prefix_min_len);
+	  if (pref_key) {
+	    ref_key = *pref_key;
+	  }
+	}
 	// now use kv_it to do a positional insert into keys_view
-	data.insert(kv_it, {key, value});
+	data.insert(kv_it, {ref_key, value});
 	return 0;
       } /* insert */
 

@@ -260,6 +260,34 @@ namespace rgw::bplus {
     return (res);
   }
 
+  /* make prefix keys */
+  static inline std::optional<leaf_key> make_prefix_key(
+    prefix_vector& pv, const leaf_key& k, const leaf_key& prevk,
+    uint16_t min_len) {
+    std::optional<leaf_key> res{};
+    uint16_t pref_off{0};
+    auto kstr = k.to_string(pv); // XXXX costly, wasteful
+    /* case 1: carry forward existing prefix */
+    if (prevk.prefix) {
+      if(std::holds_alternative<uint16_t>(*prevk.prefix)) {
+	pref_off = get<uint16_t>(*prevk.prefix);
+	auto& prefstr = pv[pref_off];
+	if (ba::starts_with(kstr, prefstr)) {
+	  res = leaf_key(pref_off, kstr.substr(prefstr.length()));
+	}
+      }
+    }
+    /* case 2: unprefixed prefk shares a common prefix with k */
+    auto cp = common_prefix(kstr, prevk.to_string(pv), min_len);
+    if (cp.length() > 0) {
+      if ((! res) ||
+	  (cp.length() > pv[pref_off].length())) {
+	pv.push_back(cp);
+	res = leaf_key(pv.size()-1, kstr.substr(cp.length()));
+      }
+    }
+    return res;
+  } /* make_prefix_key(leaf_key) */
 } /* namespace */
 
 #endif /* BPLUS_KEY_H */

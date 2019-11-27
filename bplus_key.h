@@ -191,6 +191,16 @@ namespace rgw::bplus {
     }
   }; /* fence_key */
 
+  inline std::ostream& operator<<(std::ostream &os, fence_key const &fk) {
+    os << "<fence_key: ";
+    if (fk.unbounded())
+      os << " <no bound>";
+    else
+      os << fk.as_leaf_key();
+    os << ">";
+    return os;
+  } /* pretty-print fence_key */
+
   static inline bool less_than(
     const prefix_vector& pv, const std::string& lk, const std::string& rk) {
     return (lk < rk);

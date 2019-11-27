@@ -174,25 +174,21 @@ namespace rgw::bplus {
     unbounded
     };
 
-  using fence_key = std::variant<leaf_key, key_range>;
-
-  static inline fence_key open_bound(
-    key_range::unbounded);
-
-  class branch_key
-  {
+  class fence_key {
   public:
-    fence_key fk; /* lower bound */
-    branch_key(const fence_key& _fk)
-      : fk(_fk)
-      {}
-    bool unbounded() const {
-      return std::holds_alternative<key_range>(fk);
+    std::variant<leaf_key, key_range> k;
+  public:
+    fence_key(const key_range _k) : k(_k) {}
+    fence_key(const leaf_key& _k) : k(_k) {}
+
+    inline bool unbounded() const {
+      return std::holds_alternative<key_range>(k);
     }
+
     const leaf_key& as_leaf_key() const {
-      return get<leaf_key>(fk);
+      return get<leaf_key>(k);
     }
-  }; /* branch_key */
+  }; /* fence_key */
 
   static inline bool less_than(
     const prefix_vector& pv, const std::string& lk, const std::string& rk) {
@@ -206,7 +202,7 @@ namespace rgw::bplus {
   }
 
   static inline bool less_than(
-    const prefix_vector& pv, const branch_key& lk, const branch_key& rk) {
+    const prefix_vector& pv, const fence_key& lk, const fence_key& rk) {
     if (lk.unbounded()) {
       if (!rk.unbounded())
 	return true;
@@ -243,7 +239,7 @@ namespace rgw::bplus {
   }
 
   static inline bool equal_to(
-    const prefix_vector& pv, const branch_key& lk, const branch_key& rk) {
+    const prefix_vector& pv, const fence_key& lk, const fence_key& rk) {
     if (lk.unbounded()) {
       if (rk.unbounded())
 	return true;

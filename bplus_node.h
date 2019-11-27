@@ -125,13 +125,15 @@ namespace rgw { namespace bplus {
     public:
       Node(uint32_t _fanout, uint16_t _prefix_min_len)
 	: fanout(_fanout), prefix_min_len(_prefix_min_len),
-	  lower_bound(open_bound), upper_bound(open_bound),
+	  lower_bound(fence_key(key_range::unbounded)),
+	  upper_bound(fence_key(key_range::unbounded)),
 	  keysviewLT(pv), keysviewEQ(pv)
 	{}
 
-      Node(uint32_t _fanout, uint16_t _prefix_min_len, const branch_key& bounds)
+      Node(uint32_t _fanout, uint16_t _prefix_min_len,
+	  const fence_key& lb, const fence_key& ub)
 	: fanout(_fanout), prefix_min_len(_prefix_min_len),
-	  lower_bound(open_bound), upper_bound(open_bound),
+	  lower_bound(lb), upper_bound(ub),
 	  keysviewLT(pv), keysviewEQ(pv)
 	{}
 
@@ -280,7 +282,7 @@ namespace rgw { namespace bplus {
     }; /* Node */
 
     using leaf_node = Node<leaf_key, NodeType::Leaf>;
-    using branch_node = Node<branch_key, NodeType::Branch>;
+    using branch_node = Node<fence_key, NodeType::Branch>;
     using node_ptr = std::variant<leaf_node*, branch_node*>;
 
     class node_factory {

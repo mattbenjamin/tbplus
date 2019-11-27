@@ -291,8 +291,7 @@ namespace rgw::bplus {
   static inline std::optional<fence_key> make_prefix_key(
     prefix_vector& pv, const fence_key& k, const fence_key& prevk,
     uint16_t min_len) {
-    if (unlikely(k.unbounded() ||
-		    prevk.unbounded())) {
+    if (unlikely(k.unbounded() || prevk.unbounded())) {
       return {};
     }
     return make_prefix_key(

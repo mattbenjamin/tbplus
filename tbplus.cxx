@@ -51,12 +51,15 @@ namespace {
     static constexpr uint32_t fanout = 100;
     static constexpr uint16_t prefix_min_len = 2;
     string pref{"f_"};
+    string branch_pref{"bf_"};
   public:
     Node_Min1() {
     }
   };
   leaf_node n(Node_Min1::fanout, Node_Min1::prefix_min_len);
   std::vector<uint8_t> min1_serialized_bytes;
+
+  branch_node bn(Node_Min1::fanout, Node_Min1::prefix_min_len);
 
   class Tree_Min1 : public ::testing::Test {
   public:
@@ -188,6 +191,23 @@ TEST_F(Node_Min1, list4) {
   ASSERT_EQ(count, Node_Min1::fanout - 3);
 }
 
+TEST_F(Node_Min1, branch_fill1) {
+  for (int ix = 0; ix < Node_Min1::fanout; ++ix) {
+    string k = branch_pref + std::to_string(ix);
+    string v = "val for " + k;
+    auto ret = bn.insert(fence_key(k), v);
+    ASSERT_EQ(ret, 0);
+    /* forbids duplicates */
+    if (ix == 5) {
+      ret = bn.insert(k, v);
+      ASSERT_EQ(ret, EEXIST);
+    }
+  }
+  ASSERT_EQ(bn.size(), Node_Min1::fanout);
+  auto ret = bn.insert(fence_key("foo"), "bar");
+  ASSERT_EQ(ret, E2BIG);
+}
+
 TEST_F(Tree_Min1, names) {
   for (int ix = 0; ix < 10; ++ix) {
     auto node_name = t1.gen_node_name();
@@ -220,7 +240,6 @@ TEST_F(Tree_Min1, names2) {
   std::cout << std::endl;
 
 }
-
 
 TEST_F(Tree_Min1, fill1) {
   for (int ix = 0; ix < Tree_Min1::fanout; ++ix) {

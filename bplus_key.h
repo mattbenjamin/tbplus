@@ -180,6 +180,7 @@ namespace rgw::bplus {
   public:
     fence_key(const key_range _k) : k(_k) {}
     fence_key(const leaf_key& _k) : k(_k) {}
+    fence_key(const std::string& _k) : k(leaf_key(_k)) {}
 
     inline bool unbounded() const {
       return std::holds_alternative<key_range>(k);
@@ -286,6 +287,18 @@ namespace rgw::bplus {
     }
     return res;
   } /* make_prefix_key(leaf_key) */
+
+  static inline std::optional<fence_key> make_prefix_key(
+    prefix_vector& pv, const fence_key& k, const fence_key& prevk,
+    uint16_t min_len) {
+    if (unlikely(k.unbounded() ||
+		    prevk.unbounded())) {
+      return {};
+    }
+    return make_prefix_key(
+      pv, k.as_leaf_key(), prevk.as_leaf_key(), min_len);
+  } /* make_prefix_key(fence_key) */
+
 } /* namespace */
 
 #endif /* BPLUS_KEY_H */
